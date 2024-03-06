@@ -1,24 +1,22 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const bodyParser = require('body-parser');
 const { databaseURL, port } = require('./config');
-console.log(databaseURL, port);
 const app = express();
+const routes = require('./route/index');
 
-app.use(cors({
-  origin: 'http://localhost:3030' 
-}));
-
-app.use(express.json());
-
-mongoose.connect(databaseURL, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(databaseURL, { useNewUrlParser: true, useUnifiedTopology: true})
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('Could not connect to MongoDB...', err));
+console.log(databaseURL);
+app.use(cors({
+  origin: 'http://localhost:3030'
+}));
+
+app.use(bodyParser.json());
+app.use('/api', routes.userRouter);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
-
-module.exports = {
-  express
-};

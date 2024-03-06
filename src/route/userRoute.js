@@ -1,9 +1,8 @@
-const { express } = require('../app');
-const router = express.Router();
-const verifyToken = require('../middleware/authMiddleware.js');
+const express = require('express');
+const { signup } = require('../controller/userController');
+// const { authenticateToken } = require('./middleware');
+const userRouter = express.Router();
 
-router.get('/protected-route', verifyToken, (req, res) => {
-  res.status(200).send("Protected Route");
-});
+userRouter.post('/signup', signup);
 
-module.exports = router;
+module.exports = { userRouter };
