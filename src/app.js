@@ -4,7 +4,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const { databaseURL, port } = require('./config');
 const app = express();
-const routes = require('./route/index');
+const routes = require('./routes/index');
 
 mongoose.connect(databaseURL, { useNewUrlParser: true, useUnifiedTopology: true})
   .then(() => console.log('Connected to MongoDB'))
