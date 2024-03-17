@@ -1,8 +1,9 @@
 const mongoose = require("mongoose");
-
+const { ObjectId } = mongoose.Schema;
+const { COURSE_CATEGORY } = require("../constants/course.constant");
 const Schema = new mongoose.Schema(
   {
-    title: {
+    name: {
       type: String,
       required: true,
       minLength: 2,
@@ -16,7 +17,12 @@ const Schema = new mongoose.Schema(
     },
     price: { type: Number, required: true },
     category: { type: String, enum: Object.values(COURSE_CATEGORY) },
-    providerId: { type: String, required: true },
+    instructorId: { type: ObjectId, required: true },
+    ratings: {
+      type: Number,
+      default: 0,
+    },
+
   },
   {
     collection: "courses",

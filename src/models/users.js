@@ -1,15 +1,14 @@
 const mongoose = require("mongoose");
-const { USER_ROLE } = require("../constants/user.constants");
+const { USER_ROLE,USER_GENDER } = require("../constants/user.constants");
 
 const Schema = new mongoose.Schema(
   {
     email: { type: String, unique: true, required: true },
-    fullname: { type: String, required: true },
+    fullName: { type: String, required: true },
     password: {
       type: String,
       required: true,
       minLength: 6,
-      maxLength: 18,
     },
     role: {
       type: String,

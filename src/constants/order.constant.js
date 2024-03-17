@@ -1,0 +1,11 @@
+module.exports = {
+  ORDER_STATUS: {
+    PENDING: 'PENDING',
+    COMPLETED: 'COMPLETED',
+    CANCELLED: 'CANCELLED'
+  },
+  PAYMENT_METHOD:{
+    CARD: 'CARD',
+    WALLET: 'WALLET'
+  }
+}

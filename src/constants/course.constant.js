@@ -1,7 +1,7 @@
 module.exports = {
     COURSE_CATEGORY : {
-        FRONTEND: 'FRONTEND',
-        BACKEND: 'BACKEND',
-        FULLSTACK: 'FULLSTACK',
+        DEVELOPMENT: 'DEVELOPMENT',
+        BUSINESS: 'BUSINESS',
+        DESIGN: 'DESIGN'
     }
 }
