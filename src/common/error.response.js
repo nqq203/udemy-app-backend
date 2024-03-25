@@ -7,9 +7,19 @@ class ErrorResponse extends Error {
         errors = null,
     ) {
         super(message);
+        this.success = false;
         this.code = code;
         this.errors = errors;
     }
+    responseBody() {
+        console.log(this);
+        return {
+          success: this.success,
+          code: this.code,
+          message: this.message,
+          data: this.data,
+        };
+      }
 }
 
 class ForbiddenResponse extends ErrorResponse {
@@ -47,6 +57,11 @@ class UnprocessableContentResponse extends ErrorResponse {
         super(message, code, errors);
     }
 }
+class InternalServerError extends ErrorResponse {
+    constructor(message = ReasonPhrases.INTERNAL_SERVER_ERROR, code = StatusCodes.INTERNAL_SERVER_ERROR) {
+        super(message, code);
+    }
+}
 
 module.exports = {
   ErrorResponse,
@@ -55,5 +70,6 @@ module.exports = {
   AuthFailureResponse,
   NotFoundResponse,
   BadRequest,
-  UnprocessableContentResponse
+  UnprocessableContentResponse,
+  InternalServerError
 }

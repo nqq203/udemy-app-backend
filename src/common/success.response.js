@@ -4,12 +4,15 @@ const pick = require("../utils/pick")
 class SuccessResponse {
   constructor({ message = ReasonPhrases.OK, code = StatusCodes.OK, metadata = {} }) {
     this.payload = {
+      success: true,
       message,
       code,
       metadata
     }
   }
-
+  responseBody() {
+    return this.payload
+  }
   send({ req, res, header = {}, cookies = {} }) {
     // Handle cookie
     Object.entries(cookies).forEach(([key, value]) => {

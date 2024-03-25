@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { USER_ROLE,USER_GENDER } = require("../constants/user.constants");
+const { USER_ROLE, USER_GENDER } = require("../constants/user.constants");
 
 const Schema = new mongoose.Schema(
   {
@@ -8,7 +8,7 @@ const Schema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
-      minLength: 6,
+      minLength: 8,
     },
     role: {
       type: String,
