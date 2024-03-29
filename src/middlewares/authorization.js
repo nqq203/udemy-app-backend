@@ -1,5 +1,10 @@
 const jwt = require("jsonwebtoken");
+const moment = require("moment");
+const sessionConstant = require("../constants/session.constant");
+const mongoose = require("mongoose");
+const { ObjectId } = mongoose.Schema.Types
 const User = require("../models/users");
+const Session = require("../models/sessions");
 const {
   AuthFailureResponse,
   ForbiddenResponse,
@@ -11,17 +16,38 @@ const verifyToken = async (req, res, next) => {
     const token = req.headers["authorization"]?.split(" ")[1];
 
     if (!token) {
-      return res.send(new AuthFailureResponse("Access denied").responseBody());
+      return res.send(new AuthFailureResponse("Invalid token").responseBody());
     }
-    let verified;
+    
     try {
-      verified = jwt.verify(token, process.env.JWT_SECRET_KEY);
+      const {sessionId, userId} = jwt.verify(token, process.env.JWT_SECRET_KEY);
+      const session = await Session.findById(sessionId);
+      
+      if (!session) {
+        return res.send(new AuthFailureResponse("Invalid token").responseBody());
+      }
+      if (session && session.expiredAt < moment()) {
+        return res.send(new AuthFailureResponse("Invalid token").responseBody());
+      }
+      if (session.status !== sessionConstant.STATUS_TOKEN.ACTIVE) {
+        return res.send(new AuthFailureResponse("Invalid token").responseBody());
+      }
+      if (session && String(session.userId) !== userId) {
+        return res.send(new AuthFailureResponse("Invalid token").responseBody());
+      }
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.send(new AuthFailureResponse("Invalid token").responseBody());
+      }
+      console.log(session);
+      req.session = session;
+      req.user = user;
+
+      next();
     } catch (err) {
       res.send(new AuthFailureResponse('Invalid token'));
     }
 
-    req.user = verified;
-    next();
   } catch (err) {
     console.log(err);
     res.send(new InternalServerError('Internal server error'));

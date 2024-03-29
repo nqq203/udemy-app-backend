@@ -13,9 +13,24 @@ userRouter.post('/create', async (req, res) => {
 
   res.send(response.responseBody());
 });
+userRouter.post('/login', async(req,res)=>{
+  const data = req.body;
+  const response = await service.signIn(data);
+
+  res.send(response.responseBody())
+})
+
+userRouter.post('/logout', verifyToken, async (req, res) => {
+  const data = req.body;
+  const response = await service.signOut(data);
+  res.send(response.responseBody());
+});
 
 userRouter.get('/email', verifyToken,async (req, res) => {
-  const email = req.body.email;
+  const {email = ''} = req.body;
+  if (!email) {
+    return res.send(new BadRequest("Missed email").responseBody());
+  } 
   const response = await service.getUserByEmail(email);
   res.send(response.responseBody());
 });
