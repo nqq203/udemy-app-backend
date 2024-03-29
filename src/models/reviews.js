@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
-
+const { ObjectId } = mongoose.Schema;
 const Schema = new mongoose.Schema(
     {
         rating: { type: Number, required: true },
         comment: { type: String, required: true },
-        userId: { type: String, required: true },
+        userId: { type: ObjectId, required: true },
         courseId: { type: String, required: true },
     },
     {
