@@ -1,7 +1,7 @@
+
 const mongoose = require("mongoose");
-const ObjectId = require('mongodb').ObjectId;
-const { ORDER_STATUS, PAYMENT_METHOD } = require("../constants/order.constant.js");
 const { ObjectId } = mongoose.Schema;
+const { COURSE_CATEGORY } = require("../constants/course.constant");
 const Schema = new mongoose.Schema(
   {
     userId: { type: ObjectId, required: true },
@@ -21,14 +21,10 @@ const Schema = new mongoose.Schema(
       default: [],
       required: true,
   },
-    status: { type: String, enum: Object.values(ORDER_STATUS) },
-    paymentMethod: { type: String, enum: Object.values(PAYMENT_METHOD) },
   },
   {
-    collection: "orders",
+    collection: "carts",
     versionKey: false,
     timestamps: true,
   }
 );
-
-module.exports = mongoose.model(Schema.options.collection, Schema)
