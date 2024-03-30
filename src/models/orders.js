@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const ObjectId = require('mongodb').ObjectId;
 const { ORDER_STATUS, PAYMENT_METHOD } = require("../constants/order.constant.js");
 
 const Schema = new mongoose.Schema(

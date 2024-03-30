@@ -20,6 +20,14 @@ userRouter.get('/email', verifyToken,async (req, res) => {
   res.send(response.responseBody());
 });
 
+userRouter.get('/change-password', async (req, res) => {
+  //Test data
+  const email = "abc123@gmail.com";
+  const newPassword = "123456";
+  const response = await service.handlePasswordChange(email, newPassword);
+  res.send(response.responseBody());
+});
+
 userRouter.get('/list', async (req, res) => {
   const response = await service.getAllUsers();
   res.send(response.responseBody());

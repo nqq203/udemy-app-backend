@@ -48,6 +48,46 @@ module.exports = class UserService {
     }
   }
 
+  async updateProfile(data) {
+    try {
+      const { fullName, email, password } = data;
+     
+      return new CreatedResponse({
+        message: "Create user successfully",
+        metadata: user,
+      });
+    } catch (err) {
+      console.log(err);
+      return new InternalServerError();
+    }
+  }
+
+  async handlePasswordChange(email, newPassword) {
+    try {
+      const userExists = await this.repository.getByEntity({ email });
+      if (!userExists) {
+        return new NotFoundResponse("User not found");
+      }
+      
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      const user = await this.repository.update(
+        { email: email }, 
+        { password: hashedPassword }
+      );
+     
+      if (!user) {
+        return new BadRequest("Change password failed");
+      }
+      return new CreatedResponse({
+        message: "Change password successfully",
+        metadata: user,
+      });
+    } catch (err) {
+      console.log(err);
+      return new InternalServerError();
+    }
+  }
+
   async getUserByEmail(email) {
     try {
       const user = await this.repository.getByEntity({ email });
