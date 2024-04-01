@@ -4,7 +4,10 @@ const service = new UserService();
 const {verifyToken, checkRoles} = require('../middlewares/authorization');
 const asyncHandler = require('../middlewares/asyncHandler');
 const userRouter = express.Router();
-
+const {
+  CreatedResponse,
+  SuccessResponse,
+} = require("../common/success.response");
 
 userRouter.post('/create', async (req, res) => {
   const userData = req.body;
@@ -14,10 +17,14 @@ userRouter.post('/create', async (req, res) => {
 });
 userRouter.post('/signin', async(req,res)=>{
   const data = req.body;
+  console.log(data)
   const response = await service.signIn(data);
   console.log(response)
-  res.set('Authorization', `Bearer ${response.payload.metadata.accessToken}`);
-  delete response.payload.metadata.accessToken;
+  if (response instanceof SuccessResponse) {
+    res.set('Authorization', `Bearer ${response.payload.metadata.accessToken}`);
+    // delete response.payload.metadata.accessToken;
+  }
+ 
   res.send(response.responseBody())
 })
 
