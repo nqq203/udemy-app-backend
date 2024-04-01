@@ -67,7 +67,8 @@ module.exports = class UserService {
     const expiredTime = moment().subtract(1, 'hour');
     const currentSession = await this.sessionRepository.getByEntity({userId: user._id, status: sessionConstant.STATUS_TOKEN.ACTIVE, expiredAt: {$gte: expiredTime}});
     if (currentSession){
-      const updateSession = await this.sessionRepository.update({currentSession: currentSession._id}, {status: sessionConstant.STATUS_TOKEN.INACTIVE, logoutAt: moment()});
+      const updateSession = await this.sessionRepository.update({_id: currentSession._id}, {status: sessionConstant.STATUS_TOKEN.INACTIVE, logoutAt: moment()});
+      
       if (!updateSession) {
         return new InternalServerError();
       }

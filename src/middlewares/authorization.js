@@ -56,12 +56,13 @@ const verifyToken = async (req, res, next) => {
 
 const checkRoles = (roles) => {
   return (req, res, next) => {
-    const { user } = req;
+    const { user } = req; //req.user
+    console.log(user)
     if (roles.indexOf(user.role) !== -1) {
       next();
     } else {
       console.log("Forbidden");
-      res.send(new ForbiddenResponse('Invalid token').responseBody());
+      res.send(new ForbiddenResponse('Forbidden').responseBody());
     }
   };
 };

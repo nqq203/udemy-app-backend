@@ -1,5 +1,4 @@
 const express = require('express');
-// const { createNewAccount } = require('../controller/userController');
 const UserService = require('../services/userService');
 const service = new UserService();
 const {verifyToken, checkRoles} = require('../middlewares/authorization');
@@ -13,10 +12,12 @@ userRouter.post('/create', async (req, res) => {
 
   res.send(response.responseBody());
 });
-userRouter.post('/login', async(req,res)=>{
+userRouter.post('/signin', async(req,res)=>{
   const data = req.body;
   const response = await service.signIn(data);
-
+  console.log(response)
+  res.set('Authorization', `Bearer ${response.payload.metadata.accessToken}`);
+  delete response.payload.metadata.accessToken;
   res.send(response.responseBody())
 })
 
@@ -26,7 +27,7 @@ userRouter.post('/logout', verifyToken, async (req, res) => {
   res.send(response.responseBody());
 });
 
-userRouter.get('/email', verifyToken,async (req, res) => {
+userRouter.get('/email', verifyToken, checkRoles(['LEARNER']),async (req, res) => {
   const {email = ''} = req.body;
   if (!email) {
     return res.send(new BadRequest("Missed email").responseBody());
