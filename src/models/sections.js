@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { ObjectId } = mongoose.Schema;
 const { USER_ROLE,USER_GENDER } = require("../constants/user.constants");
 
 const Schema = new mongoose.Schema(
