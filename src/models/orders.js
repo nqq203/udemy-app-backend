@@ -1,11 +1,25 @@
 const mongoose = require("mongoose");
 const { ORDER_STATUS, PAYMENT_METHOD } = require("../constants/order.constant.js");
-
+const { ObjectId } = mongoose.Schema;
 const Schema = new mongoose.Schema(
   {
     userId: { type: ObjectId, required: true },
-    courseId: { type: ObjectId, required: true },
-    price: { type: Number, required: true },
+    items: {
+      type: [
+          {
+              itemId: {
+                  type: ObjectId,
+                  required: true
+              },
+              price: {
+                  type: Number,
+                  required: true
+              },
+          },
+      ],
+      default: [],
+      required: true,
+  },
     status: { type: String, enum: Object.values(ORDER_STATUS) },
     paymentMethod: { type: String, enum: Object.values(PAYMENT_METHOD) },
   },

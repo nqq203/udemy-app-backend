@@ -65,4 +65,14 @@ module.exports = class CourseRepository {
       return null;
     }
   }
+  
+  async getCourseById(id) {
+    try {
+      const course = await this.model.findOne({ _id: id });
+      return course
+    } catch (error) {
+      return null
+    }
+  }
+
 }
