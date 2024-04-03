@@ -9,7 +9,7 @@ const Schema = new mongoose.Schema(
         duration: { type: BigInt, required: true },
     },
     {
-        collection: "lessons",
+        collection: "lectures",
         versionKey: false,
         timestamps: true,
     }

@@ -43,21 +43,21 @@ module.exports = class CourseService {
     }
   }
 
-  async createCourseWithSectionsAndLectures(data) {
+  async createCourseWithSectionsAndLectures(data, files) {
     try {
       const { courseData, sections } = data; // data in section include name and lectures
       //Create the course first
       const createdCourse = await this.createCourse(courseData);
-      // if (!createdCourse.createdCourse.payload.metadata) {
-      //   return new BadRequest("Failed to create course");
-      // }
-
+      // console.log(createdCourse.payload.metadata);
+        
       if (!sections || sections.length === 0) {
         return new BadRequest("Require at least one section");
       }
 
       const sectionService = new SectionService();
       const lectureService = new LectureService();
+
+      let fileIndex = 0;
 
       // Iterate over each section
       for (const section of sections) {
@@ -75,8 +75,16 @@ module.exports = class CourseService {
 
         // Iterate over lectures to create each one
         for (const lectureData of lectures) {
+          const file = files[fileIndex++];
+          console.log(file);
+          const videoUploadResponse = await cloudinary.uploader.upload(file.path, {
+            resource_type: "video",
+            public_id: `${createdCourse.name}/${createdSection.name}/${file.filename}`,
+          });
+
           // Add sectionId and course Id to lectureData
           lectureData.sectionId = createdSection.payload.metadata._id;
+          lectureData.url = videoUploadResponse.secure_url;
           
           // Create the lecture
           await lectureService.createOneLecture(lectureData);
