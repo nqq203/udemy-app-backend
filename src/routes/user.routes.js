@@ -55,10 +55,13 @@ userRouter.get('/list', async (req, res) => {
 });
 
 userRouter.post('/signin', async (req, res) => {
-  const userData = req.body;
-  console.log(userData);
-  const response = await service.signIn(userData);
-  res.send(response.responseBody());
+  const data = req.body;
+  const response = await service.signIn(data);
+  if (response instanceof SuccessResponse) {
+    res.set('Authorization', `Bearer ${response.payload.metadata.accessToken}`);
+  }
+ 
+  res.send(response.responseBody())
 });
 
 module.exports = { userRouter };

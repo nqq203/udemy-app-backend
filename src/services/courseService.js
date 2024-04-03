@@ -2,6 +2,7 @@ const CourseRepository  = require("../repositories/courseRepository");
 const UserService = require("../services/userService");
 const SectionService = require("../services/sectionService");
 const LectureService = require("../services/lectureService");
+const {uploadFileToCloud} = require("../utils/cloudinary"); 
 
 const {
   ConflictResponse,
@@ -75,16 +76,18 @@ module.exports = class CourseService {
 
         // Iterate over lectures to create each one
         for (const lectureData of lectures) {
+          if (fileIndex >= files.length) {
+            return new BadRequest("Insufficient files uploaded for the lectures");
+          }
+
           const file = files[fileIndex++];
-          console.log(file);
-          const videoUploadResponse = await cloudinary.uploader.upload(file.path, {
-            resource_type: "video",
-            public_id: `${createdCourse.name}/${createdSection.name}/${file.filename}`,
-          });
+          // console.log(file);
+          const fileUrl = await uploadFileToCloud(file);
+          // console.log(fileUrl);
 
           // Add sectionId and course Id to lectureData
           lectureData.sectionId = createdSection.payload.metadata._id;
-          lectureData.url = videoUploadResponse.secure_url;
+          lectureData.url = fileUrl;
           
           // Create the lecture
           await lectureService.createOneLecture(lectureData);
@@ -136,7 +139,7 @@ module.exports = class CourseService {
 
   async getCourseById(courseId) {
     try {
-      console.log(courseId);
+      // console.log(courseId);
       const course = await this.repository.getByEntity({ _id: courseId });
       if (!course) {
         return new NotFoundResponse("Course not found");
