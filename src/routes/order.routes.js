@@ -9,13 +9,13 @@ String.prototype.toObjectId = function() {
   return new ObjectId(this.toString());
 };
 
-orderRouter.get('/create', async (req, res) => {
-  //Testing data
+orderRouter.post('/create', async (req, res) => {
   const orderData = {
     userId: '6600f3eb54ceadb10ad3e4e8'.toObjectId(),
     courseId: '6603e745d8569ec90a5568aa'.toObjectId(),
-    price: 100000,
-    paymentMethod: 'paypal',
+    country: req.body.country,
+    price: req.body.totalPrice,
+    paymentMethod: req.body.paymentMethod,
   }
   const response = await service.createOrder(orderData);
   res.send(response.responseBody());
