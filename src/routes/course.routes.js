@@ -4,8 +4,8 @@ const CourseService = require('../services/courseService');
 const service = new CourseService();
 const courseRouter = express.Router();
 
-courseRouter.get('/course/:id', async (req, res) => {
-    const id = req.params.id;
+courseRouter.get('/:courseid', async (req, res) => {
+    const id = req.params.courseid;
     const response = await service.getCourseById(id);
 
     console.log(response);
