@@ -22,7 +22,10 @@ const Schema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-
+    imageUrl: {
+      type: String,
+      default: "https://via.placeholder.com/300x300.png?text=Course+Image",
+    },
   },
   {
     collection: "courses",
