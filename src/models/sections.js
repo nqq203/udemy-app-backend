@@ -3,7 +3,7 @@ const { USER_ROLE,USER_GENDER } = require("../constants/user.constants");
 const { ObjectId } = mongoose.Schema;
 const Schema = new mongoose.Schema(
   {
-    courseId: { type: ObjectId, required: true },
+    courseId: { type: mongoose.ObjectId, required: true },
     name: { type: String, required: true },
   },
   {

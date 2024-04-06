@@ -110,7 +110,7 @@ module.exports = class UserService {
       if (!users) {
         return new NotFoundResponse("User not found");
       }
-      return new SuccessResponse({message: "User found", metadata: user});
+      return new SuccessResponse({message: "User found", metadata: users});
     } catch (err) {
       console.log(err);
       return new InternalServerError();
