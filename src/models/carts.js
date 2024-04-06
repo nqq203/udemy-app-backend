@@ -5,22 +5,10 @@ const { COURSE_CATEGORY } = require("../constants/course.constant");
 const Schema = new mongoose.Schema(
   {
     userId: { type: ObjectId, required: true },
-    items: {
-      type: [
-          {
-              itemId: {
-                  type: ObjectId,
-                  required: true
-              },
-              price: {
-                  type: Number,
-                  required: true
-              },
-          },
-      ],
-      default: [],
-      required: true,
-  },
+    itemId: {
+        type: ObjectId,
+        required: true
+    },
   },
   {
     collection: "carts",
@@ -28,3 +16,5 @@ const Schema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+module.exports = mongoose.model(Schema.options.collection, Schema);

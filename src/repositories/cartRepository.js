@@ -1,6 +1,11 @@
 const Carts = require('../models/carts')
 
 module.exports = class CartRepository{
+
+  async getAll(userId){
+    const carts = await Carts.find({userId});
+    return carts
+  }
   async getCart(id){
     const cart = await Carts.findById(id).populate('items.itemId');
     return cart
@@ -22,7 +27,7 @@ module.exports = class CartRepository{
 
   async delete(entity) {
     try {
-      const deletedCart = await Carts.deleteMany(entity);
+      const deletedCart = await Carts.findOneAndDelete(entity);
       return deletedCart;
     } catch (error) {
       console.error(error);

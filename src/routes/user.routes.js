@@ -17,7 +17,7 @@ userRouter.post('/signin', async(req,res)=>{
   const response = await service.signIn(data);
   console.log(response)
   res.set('Authorization', `Bearer ${response.payload.metadata.accessToken}`);
-  delete response.payload.metadata.accessToken;
+  // delete response.payload.metadata.accessToken;
   res.send(response.responseBody())
 })
 
