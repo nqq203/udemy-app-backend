@@ -1,4 +1,5 @@
-const SessionRepository = require("../repositories/sessionRepository");
+const CartRepository = require("../repositories/cartRepository");
+const CourseRepository = require("../repositories/courseRepository");
 const {
   ConflictResponse,
   BadRequest,
