@@ -1,5 +1,7 @@
 const express = require('express');
 const LectureService = require('../services/lectureService');
+const {verifyToken, checkRoles} = require('../middlewares/authorization');
+const asyncHandler = require('../middlewares/asyncHandler');
 const service = new LectureService();
 const lectureRouter = express.Router();
 
@@ -15,4 +17,10 @@ lectureRouter.get('/duration', async(req,res) => {
     res.send(response.responseBody());
 })
 
-module.exports = {lectureRouter}
+lectureRouter.post('/create', verifyToken, verifyToken, async (req, res) => {
+  const data = req.body;
+  const response = await service.createOneLecture(data);
+  res.send(response.responseBody());
+});
+
+module.exports = { lectureRouter };
