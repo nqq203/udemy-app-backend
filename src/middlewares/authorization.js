@@ -13,7 +13,7 @@ const {
 
 const verifyToken = async (req, res, next) => {
   try {
-    const token = req.headers["authorization"]?.split(" ")[1];
+    const token = req.headers['authorization']?.split(" ")[1];
 
     if (!token) {
       return res.send(new AuthFailureResponse("Invalid token").responseBody());
@@ -39,7 +39,6 @@ const verifyToken = async (req, res, next) => {
       if (!user) {
         return res.send(new AuthFailureResponse("Invalid token").responseBody());
       }
-      console.log(session);
       req.session = session;
       req.user = user;
 

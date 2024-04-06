@@ -55,7 +55,24 @@ module.exports = class UserService {
 
   async updateProfile(data) {
     try {
-      const { fullName, email } = data;
+      const { email, fullName, biography, website, facebook, linkedin } = data;
+
+      if (!fullName || !email) {
+        return new BadRequest("Missed information");
+      }
+
+      const userExists = await this.repository.getByEntity({ email });
+      if (!userExists) {
+        return new NotFoundResponse("User not found");
+      }
+
+      const user = await this.repository.update(userExists, {
+        fullName,
+        biography,
+        website,
+        facebook,
+        linkedin,
+      });
      
       return new CreatedResponse({
         message: "Update profile successfully",
@@ -67,11 +84,24 @@ module.exports = class UserService {
     }
   }
 
-  async handlePasswordChange(email, newPassword) {
+  async handlePasswordChange(email, currentPassword, newPassword) {
     try {
       const userExists = await this.repository.getByEntity({ email });
       if (!userExists) {
         return new NotFoundResponse("User not found");
+      }
+
+      const isValidPassword = await bcrypt.compare(currentPassword, userExists.password);
+      if (!isValidPassword) {
+        return new BadRequest("Invalid password");
+      }
+
+      if (currentPassword === newPassword) {
+        return new BadRequest("New password must be different from the old password");
+      }
+
+      if (!newPassword) {
+        return new BadRequest("Missed information");
       }
       
       const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -157,5 +187,17 @@ module.exports = class UserService {
     }
   }
 
+  async getUserById(userId) {
+    try {
+      const user = await this.repository.getByEntity({ _id: userId });
+      if (!user) {
+        return new NotFoundResponse("User not found");
+      }
+      return new SuccessResponse({message: "User found", metadata: user});
+    } catch (err) {
+      console.log(err);
+      return new InternalServerError();
+    }
+  }
   //Update, Delete,...
 };

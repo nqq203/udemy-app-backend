@@ -17,26 +17,14 @@ module.exports = class OrderService {
 
   async createOrder(data) {
     try {
-      const { userId, courseId, country, price, paymentMethod } = data;
-      if (!userId || !courseId || !country || !price || !paymentMethod) {
+      const { userId, items, country, price, paymentMethod } = data;
+      if (!userId || !items || !country || !price || !paymentMethod) {
         return new BadRequest("Missed information");
       }
 
-      // const courseExists = await this.repository.getByEntity({ courseId });
-      // if (!courseExists) {
-      //   return new NotFoundResponse("Course not found");
-      // }
-
-      //price = courseExists.price;
-      
-      // const userExists = await this.repository.getByEntity({ userId });
-      // if (!userExists) {
-      //   return new NotFoundResponse("User not found");
-      // }
-
       const order = await this.repository.create({
         userId: userId,
-        courseId: courseId,
+        items: items,
         country: country,
         price: price,
         status: ORDER_STATUS.PENDING,
