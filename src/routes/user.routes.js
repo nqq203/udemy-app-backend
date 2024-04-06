@@ -14,7 +14,7 @@ userRouter.post('/create', async (req, res) => {
   res.send(response.responseBody());
 });
 
-userRouter.get('/email', verifyToken,async (req, res) => {
+userRouter.get('/email', verifyToken, async (req, res) => {
   const email = req.body.email;
   const response = await service.getUserByEmail(email);
   res.send(response.responseBody());
