@@ -1,5 +1,5 @@
 const {userRouter} = require('./user.routes');
-const {cartRouter} = require('./carts.routes')
+const {cartRouter} = require('./cart.routes')
 module.exports = {
   userRouter,
   cartRouter

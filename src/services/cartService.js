@@ -10,12 +10,12 @@ const {
   CreatedResponse,
   SuccessResponse,
 } = require("../common/success.response");
-const CartRepository = require('../repositories/cartRepository')
+
 // const sessionConstant = require("../constants/session.constant");
 module.exports = class UserService {
   constructor() {
     this.repository = new CartRepository();
-    this.sessionRepository = new SessionRepository();
+    // this.sessionRepository = new SessionRepository();
   }
 
   async createCart(data) {
