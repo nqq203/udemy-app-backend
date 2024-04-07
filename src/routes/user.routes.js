@@ -39,8 +39,6 @@ userRouter.get('/email', verifyToken, checkRoles(['LEARNER']),async (req, res) =
   if (!email) {
     return res.send(new BadRequest("Missed email").responseBody());
   } 
-  const response = await service.getUserByEmail(email);
-  res.send(response.responseBody());
 });
 
 userRouter.get('/id', verifyToken,async (req, res) => {
@@ -52,16 +50,6 @@ userRouter.get('/id', verifyToken,async (req, res) => {
 userRouter.get('/list', async (req, res) => {
   const response = await service.getAllUsers();
   res.send(response.responseBody());
-});
-
-userRouter.post('/signin', async (req, res) => {
-  const data = req.body;
-  const response = await service.signIn(data);
-  if (response instanceof SuccessResponse) {
-    res.set('Authorization', `Bearer ${response.payload.metadata.accessToken}`);
-  }
- 
-  res.send(response.responseBody())
 });
 
 module.exports = { userRouter };

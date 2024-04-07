@@ -17,6 +17,7 @@ const verifyToken = async (req, res, next) => {
     // const token = req.headers["authorization"]?.split(" ")[1];
     // console.log(req.headers["authorization"]);
     const token = req.headers["authorization"];
+    console.log(token);
 
     if (!token) {
       return res.send(new AuthFailureResponse("Invalid token").responseBody());

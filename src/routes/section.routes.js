@@ -1,9 +1,15 @@
 const express = require('express');
 const SectionService = require('../services/sectionService');
-const service = new SectionService();
 const {verifyToken, checkRoles} = require('../middlewares/authorization');
 const asyncHandler = require('../middlewares/asyncHandler');
+const service = new SectionService();
 const sectionRouter = express.Router();
+
+sectionRouter.get('/', async(req,res) => {
+    const courseId = req.query.id;
+    const response = await service.getSectionsByCourseId(courseId);
+    res.send(response.responseBody())
+})
 
 sectionRouter.post('/create', verifyToken, async (req, res) => {
   const data = req.body;

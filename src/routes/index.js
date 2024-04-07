@@ -4,7 +4,6 @@ const {sectionRouter} = require('./section.routes');
 const {lectureRouter} = require('./lecture.routes');
 const {cartRouter} = require('./cart.routes');
 
-
 function route(app) {
   app.use('/users', userRouter);
   app.use('/courses', courseRouter);
