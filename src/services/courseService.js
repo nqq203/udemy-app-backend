@@ -23,6 +23,8 @@ module.exports = class CourseService {
   async createCourse(data) {
     try {
       const { name, description, price, instructorId } = data;
+      console.log( name, description, price, instructorId );
+      console.log(data);
       if (!name ||!description ||!price ||!instructorId) {
         throw new BadRequest("Please fill all the fields");
       }
@@ -48,8 +50,9 @@ module.exports = class CourseService {
     try {
       const { courseData, sections } = data; // data in section include name and lectures
       //Create the course first
+      const thumbnailUrl = await uploadFileToCloud(files[0]);
+      courseData.imageUrl = thumbnailUrl;
       const createdCourse = await this.createCourse(courseData);
-      // console.log(createdCourse.payload.metadata);
         
       if (!sections || sections.length === 0) {
         return new BadRequest("Require at least one section");
@@ -58,7 +61,7 @@ module.exports = class CourseService {
       const sectionService = new SectionService();
       const lectureService = new LectureService();
 
-      let fileIndex = 0;
+      let fileIndex = 1;
 
       // Iterate over each section
       for (const section of sections) {
@@ -83,7 +86,7 @@ module.exports = class CourseService {
           const file = files[fileIndex++];
           // console.log(file);
           const fileUrl = await uploadFileToCloud(file);
-          // console.log(fileUrl);
+          console.log(fileUrl);
 
           // Add sectionId and course Id to lectureData
           lectureData.sectionId = createdSection.payload.metadata._id;

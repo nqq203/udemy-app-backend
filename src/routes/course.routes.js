@@ -47,10 +47,13 @@ courseRouter.put('/update-course', verifyToken, checkRoles([USER_ROLE.PROVIDER])
   res.send(response.responseBody());
 });
 
-courseRouter.post('/create-completed-course', verifyToken, uploads.array('lectureVideos'), async (req, res) => {
+courseRouter.post('/create-completed-course', verifyToken, uploads.array('files'), async (req, res) => {
   const courseData = JSON.parse(req.body.courseData);
   const sections = JSON.parse(req.body.sections);
   const filesData = req.files;
+  // console.log(courseData);
+  // console.log(sections);
+  // console.log(filesData);
   const response = await service.createCourseWithSectionsAndLectures({courseData, sections}, filesData);
 
   res.send(response.responseBody());

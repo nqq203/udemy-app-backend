@@ -8,7 +8,7 @@ module.exports = class LectureRepository {
   async create(data) {
     try {
       const newLecture = new Lecture(data);
-      console.log(newLecture);
+      // console.log(newLecture);
       await newLecture.save();
       return newLecture;
     } catch (error) {

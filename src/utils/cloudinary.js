@@ -21,8 +21,9 @@ const storage = multer.diskStorage({
 async function uploadFileToCloud(file) {
     try {
         // Sửa đổi ở đây: thêm .upload sau cloudinary.uploader
+        const fileType = file.mimetype.split('/')[0];
         const result = await cloudinary.uploader.upload(file.path, {
-            resource_type: "video",
+            resource_type: fileType,
         });
         return result.secure_url; // Đảm bảo trả về secure_url từ result
     }

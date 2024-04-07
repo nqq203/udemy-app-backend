@@ -10,10 +10,13 @@ const {
   ForbiddenResponse,
   InternalServerError,
 } = require("../common/error.response");
+const _ = require("lodash");
 
 const verifyToken = async (req, res, next) => {
   try {
-    const token = req.headers["authorization"]?.split(" ")[1];
+    // const token = req.headers["authorization"]?.split(" ")[1];
+    // console.log(req.headers["authorization"]);
+    const token = req.headers["authorization"];
 
     if (!token) {
       return res.send(new AuthFailureResponse("Invalid token").responseBody());

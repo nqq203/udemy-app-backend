@@ -17,7 +17,7 @@ userRouter.post('/create', async (req, res) => {
 });
 userRouter.post('/signin', async(req,res)=>{
   const data = req.body;
-  console.log(data)
+  // console.log(data)
   const response = await service.signIn(data);
   console.log(response)
   if (response instanceof SuccessResponse) {

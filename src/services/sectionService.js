@@ -41,7 +41,7 @@ module.exports = class SectionService {
   async createListSection(data) {
     try {
       const { listSection } = data;
-      console.log(listSection);
+      // console.log(listSection);
       if (listSection.length === 0 || !listSection) {
         return new BadRequest("Require a list name of sections");
       }
