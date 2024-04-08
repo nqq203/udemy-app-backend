@@ -1,5 +1,7 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/users");
+
+
 const {
   AuthFailureResponse,
   ForbiddenResponse,
@@ -13,14 +15,20 @@ const verifyToken = async (req, res, next) => {
     if (!token) {
       return res.send(new AuthFailureResponse("Access denied").responseBody());
     }
+
     let verified;
     try {
       verified = jwt.verify(token, process.env.JWT_SECRET_KEY);
     } catch (err) {
-      res.send(new AuthFailureResponse('Invalid token'));
+      return res.send(new AuthFailureResponse('Invalid token'));
     }
 
-    req.user = verified;
+    const user = await User.findById(verified.userId);
+    if (!user) {
+      return res.send(new AuthFailureResponse("Invalid token").responseBody());
+    }
+
+    req.user = user;
     next();
   } catch (err) {
     console.log(err);
@@ -35,7 +43,7 @@ const checkRoles = (roles) => {
       next();
     } else {
       console.log("Forbidden");
-      res.send(new ForbiddenResponse('Invalid token').responseBody());
+      return res.send(new ForbiddenResponse('Invalid token roles').responseBody());
     }
   };
 };

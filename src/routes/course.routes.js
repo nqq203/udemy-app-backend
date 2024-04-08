@@ -18,10 +18,16 @@ courseRouter.get('/ratings',async(req,res) => {
     res.send(response.responseBody());
 });
 
-courseRouter.get('/course-learning',verifyToken,checkRoles([USER_ROLE.LEARNER]), async(req,res) => {
+courseRouter.get('/course-learning', verifyToken, checkRoles(["LEARNER"]), async(req,res, next) => {
+  try{
+    // console.log("route")
+    // console.log(req.header);
     const id = req.query.courseId;
     const response = await service.getCourseById(id);
     res.send(response.responseBody());
+  } catch(error){
+    console.log(error)
+  }
 })
 
 courseRouter.get('/', async(req,res) => {
