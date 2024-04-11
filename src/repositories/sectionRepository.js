@@ -1,5 +1,5 @@
 const Section = require('../models/sections');
-
+const mongoose = require('mongoose');
 module.exports = class SectionRepository {
   constructor() {
     this.model = Section;
@@ -50,6 +50,16 @@ module.exports = class SectionRepository {
     try {
       const section = await this.model.findOneAndDelete(entity);
       return section;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
+
+  async getSectionsByCourseId(courseId) {
+    try {
+      const sections = await this.model.find({ courseId });
+      return sections;
     } catch (error) {
       console.error(error);
       return null;

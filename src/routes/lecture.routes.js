@@ -11,4 +11,11 @@ lectureRouter.post('/create', verifyToken, verifyToken, async (req, res) => {
   res.send(response.responseBody());
 });
 
+lectureRouter.get('/:sectionId', async (req, res) => {
+  const sectionId = req.params.sectionId;
+  const response = await lecture.getLecturesBySectionId(sectionId);
+  //console.log(response);
+  res.send(response.responseBody());
+})
+
 module.exports = { lectureRouter };

@@ -56,4 +56,14 @@ module.exports = class LectureRepository {
       return null;
     }
   }
+
+  async getLecturesBySectionId(sectionId) {
+    try {
+      const lectures = await this.model.find({ sectionId: sectionId });
+      return lectures;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
 };

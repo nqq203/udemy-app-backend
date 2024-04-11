@@ -31,4 +31,16 @@ module.exports = class LectureService {
       return new InternalServerError();
     }
   }
+
+  async getLecturesBySectionId(sectionId) {
+    try {
+      const lectures = await this.repository.getLecturesBySectionId(sectionId);
+      return new SuccessResponse({
+        message: "Get lectures successfully",
+        metadata: lectures,
+      });
+    } catch (error) {
+      return new InternalServerError();
+    }
+  }
 }

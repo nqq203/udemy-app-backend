@@ -26,6 +26,17 @@ module.exports = class CourseRepository {
     }
   }
 
+  async getRelatedCourses({ category, instructorId }) {
+    try {
+      //console.log(category, instructorId)
+      const courses = await this.model.find({ category: category }).or({ instructorId: instructorId });
+      return courses;
+    } catch (error) { 
+      console.error(error);
+      return null;
+    }
+  }
+
   async getAll() {
     try {
       const courses = await this.model.find();

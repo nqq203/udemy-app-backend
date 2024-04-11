@@ -73,4 +73,19 @@ module.exports = class SectionService {
       return new InternalServerError();
     }
   }
+
+  async getSectionsByCourseId(courseId) {
+    try {
+      const sections = await this.repository.getSectionsByCourseId(courseId);
+      if (!sections) {
+        return new NotFoundResponse("Empty list of sections");
+      }
+      return new SuccessResponse({
+        message: "Found sections for course: " + courseId,
+        metadata: sections
+      });
+    } catch (error) {
+      return new InternalServerError();
+    }
+  }
 }

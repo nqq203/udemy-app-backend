@@ -93,6 +93,29 @@ module.exports = class CourseService {
     }
   }
 
+  async getAllRelatedCourses(id) {
+    try {
+      const course = await this.repository.getByEntity({ _id: id });
+      //console.log(course);
+      const relatedCourse = await this.repository.getRelatedCourses({ category: course.category, instructorId: course.instructorId });
+      if (!course) {
+        return new NotFoundResponse("Course not found");
+      }
+  
+      else if (!relatedCourse) {
+        return new NotFoundResponse("Course have no related courses");
+      }
+
+      return new SuccessResponse({
+        message: "Select related courses successfully",
+        metadata: relatedCourse,
+      });
+    }
+    catch (error) {
+      return new InternalServerError();
+    }
+  }
+
   async getAllCoursesByUserId(instructorId) {
     try {
       let listCourse = await this.repository.getAll();
@@ -128,7 +151,7 @@ module.exports = class CourseService {
 
   async getCourseById(courseId) {
     try {
-      console.log(courseId);
+      //console.log(courseId);
       const course = await this.repository.getByEntity({ _id: courseId });
       if (!course) {
         return new NotFoundResponse("Course not found");
