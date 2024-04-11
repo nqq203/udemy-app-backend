@@ -8,7 +8,7 @@ const {reviewRouter} = require('./review.routes');
 
 
 module.exports = {
-   userRouter,
+  userRouter,
   courseRouter,
   sectionRouter,
   lectureRouter,

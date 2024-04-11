@@ -1,5 +1,5 @@
-const SectionRepository = require('../repositories/sectionRepository');
-const CourseService = require('./courseService');
+const SectionRepository = require("../repositories/sectionRepository");
+const CourseService = require("./courseService");
 
 const {
   ConflictResponse,
@@ -7,7 +7,7 @@ const {
   InternalServerError,
   NotFoundResponse,
 } = require("../common/error.response");
-const { 
+const {
   CreatedResponse,
   SuccessResponse,
 } = require("../common/success.response");
@@ -31,7 +31,7 @@ module.exports = class SectionService {
       const newSection = await this.repository.create(data);
       return new CreatedResponse({
         message: "Section created successfully",
-        metadata: newSection
+        metadata: newSection,
       });
     } catch (error) {
       return new InternalServerError();
@@ -45,18 +45,22 @@ module.exports = class SectionService {
       if (listSection.length === 0 || !listSection) {
         return new BadRequest("Require a list name of sections");
       }
-      const newSections = await Promise.all(listSection.map(async (section) => {
-        const newSection = await this.repository.create({ name: section.name, courseId: section.courseId });
-        return newSection;
-      }));
+      const newSections = await Promise.all(
+        listSection.map(async (section) => {
+          const newSection = await this.repository.create({
+            name: section.name,
+            courseId: section.courseId,
+          });
+          return newSection;
+        })
+      );
       return new CreatedResponse({
         message: "Create list of sectiosn successfully",
-        metadata: newSections
+        metadata: newSections,
       });
-    }
-    catch(error) {
+    } catch (error) {
       return new InternalServerError();
-    } 
+    }
   }
 
   async getAllSections() {
@@ -74,20 +78,19 @@ module.exports = class SectionService {
     }
   }
 
-  
-
-
-    async getSectionsByCourseId(courseId){
-        try {
-            const sections = await this.repository.getAllByEntity({courseId});
-            if(!sections || sections.length == 0){
-                return new NotFoundResponse("Sections not found");
-            }
-            return new SuccessResponse({message:"Sections found",metadata: sections});
-        } catch (error) {
-            console.log(error);
-            return new InternalServerError();
-        }
+  async getSectionsByCourseId(courseId) {
+    try {
+      const sections = await this.repository.getAllByEntity({ courseId });
+      if (!sections || sections.length == 0) {
+        return new NotFoundResponse("Sections not found");
+      }
+      return new SuccessResponse({
+        message: "Sections found",
+        metadata: sections,
+      });
+    } catch (error) {
+      console.log(error);
+      return new InternalServerError();
     }
-}
-
+  }
+};
