@@ -65,4 +65,14 @@ module.exports = class SectionRepository {
       return null;
     }
   }
-};
+
+    async getAllByEntity(entity){
+        try {
+            const sections = await this.model.find(entity)
+            return sections;
+        } catch (error) {
+            console.error(error);
+            return null;
+        }
+    }
+}
