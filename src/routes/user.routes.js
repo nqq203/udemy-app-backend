@@ -10,6 +10,12 @@ const {
 } = require("../common/success.response");
 
 userRouter.post('/create', async (req, res) => {
+  // const userData = {
+  //   fullName: "Tran Minh Anh",
+  //   email: "tranminhanh1912@gmail.com",
+  //   password: "Udemy123!",
+  // }
+
   const userData = req.body;
   const response = await service.createUser(userData);
 
@@ -46,6 +52,23 @@ userRouter.get('/email', verifyToken, checkRoles(['LEARNER']),async (req, res) =
 userRouter.get('/id', verifyToken,async (req, res) => {
   const id = req.body._id;
   const response = await service.getUserById(id);
+});
+
+userRouter.post('/change-password', verifyToken, async (req, res) => {
+  //Test data
+  const email = "abc123@gmail.com";
+  const newPassword = "Udemy12345!";
+  const response = await service.handlePasswordChange(email, newPassword);
+  res.send(response.responseBody());
+});
+
+userRouter.post('/update-profile', verifyToken, async (req, res) => {
+  //Test data
+  const data = {
+    fullName: "Tran Minh Anh",
+    email: "tranminhanh1912@gmail.com",
+  }
+  const response = await service.updateProfile(data);
   res.send(response.responseBody());
 });
 

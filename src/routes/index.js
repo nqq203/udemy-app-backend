@@ -3,6 +3,7 @@ const {cartRouter} = require('./cart.routes')
 const {courseRouter} = require('./course.routes');
 const {sectionRouter} = require('./section.routes');
 const {lectureRouter} = require('./lecture.routes');
+const { orderRouter } = require('./order.routes');
 
 module.exports = {
   userRouter,
@@ -17,6 +18,7 @@ function route(app) {
   app.use('/sections',sectionRouter); 
   app.use('/lectures',lectureRouter);
   app.use('/carts', cartRouter)
+  app.use('/order', orderRouter);
 }
 
 module.exports = route;

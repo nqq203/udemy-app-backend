@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
+const ObjectId = require('mongodb').ObjectId;
 const { ORDER_STATUS, PAYMENT_METHOD } = require("../constants/order.constant.js");
-const { ObjectId } = mongoose.Schema;
 const Schema = new mongoose.Schema(
   {
     userId: { type: ObjectId, required: true },
@@ -20,6 +20,7 @@ const Schema = new mongoose.Schema(
       default: [],
       required: true,
   },
+    country: { type: String, required: true },
     status: { type: String, enum: Object.values(ORDER_STATUS) },
     paymentMethod: { type: String, enum: Object.values(PAYMENT_METHOD) },
   },
