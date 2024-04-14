@@ -5,6 +5,16 @@ module.exports = class SectionRepository {
     this.model = Section;
   }
 
+  async getAllByEntity(entity){
+    try {
+      const sections = await this.model.find(entity)
+      return sections;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
+
   async create(data) {
     try {
       const newSection = new Section(data);

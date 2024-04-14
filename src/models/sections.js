@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const { USER_ROLE,USER_GENDER } = require("../constants/user.constants");
+const { ObjectId } = mongoose.Schema;
 const Schema = new mongoose.Schema(
   {
     courseId: { type: mongoose.ObjectId, required: true },

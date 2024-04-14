@@ -1,18 +1,9 @@
 const express = require('express');
 const LectureService = require('../services/lectureService');
-const lecture = new LectureService();
 const {verifyToken, checkRoles} = require('../middlewares/authorization');
 const asyncHandler = require('../middlewares/asyncHandler');
+const service = new LectureService();
 const lectureRouter = express.Router();
-
-lectureRouter.post('/create', verifyToken, verifyToken, async (req, res) => {
-  const data = req.body;
-  const response = await lecture.createOneLecture(data);
-  res.send(response.responseBody());
-});
-
-// const service = new LectureService();
-// const lectureRouter = express.Router();
 
 lectureRouter.get('/', async(req,res) => {
     const sectionId = req.query.sectionId;
@@ -26,4 +17,24 @@ lectureRouter.get('/duration', async(req,res) => {
     res.send(response.responseBody());
 })
 
-module.exports = {lectureRouter}
+lectureRouter.post('/create', verifyToken, verifyToken, async (req, res) => {
+  const data = req.body;
+  const response = await service.createOneLecture(data);
+  res.send(response.responseBody());
+});
+
+lectureRouter.put('/update-lecture', verifyToken, async (req, res) => {
+  const data = req.body;
+  const response = await service.updateOneLecture(data);
+
+  res.send(response.responseBody());
+});
+
+lectureRouter.delete('/delete-lecture', verifyToken, async (req, res) => {
+  const data = req.body;
+  const response = await service.deleteOneLecture(data);
+
+  res.send(response.responseBody());
+});
+
+module.exports = { lectureRouter };

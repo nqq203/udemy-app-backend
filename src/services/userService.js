@@ -23,8 +23,9 @@ module.exports = class UserService {
 
   async createUser(data) {
     try {
-      const { fullName, email, password } = data;
-      if (!fullName || !email || !password) {
+      const { fullname, email, password } = data;
+      console.log(data);
+      if (!fullname || !email || !password) {
         return new BadRequest("Missed information");
       }
 
@@ -35,7 +36,7 @@ module.exports = class UserService {
 
       const hashedPassword = await bcrypt.hash(password, 10);
       const user = await this.repository.create({
-        fullName,
+        fullName: fullname,
         email,
         password: hashedPassword,
       });

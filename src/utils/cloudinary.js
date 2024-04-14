@@ -19,18 +19,40 @@ const storage = multer.diskStorage({
 });
 
 async function uploadFileToCloud(file) {
-    try {
-        // Sửa đổi ở đây: thêm .upload sau cloudinary.uploader
-        const result = await cloudinary.uploader.upload(file.path, {
-            resource_type: "video",
-        });
-        return result.secure_url; // Đảm bảo trả về secure_url từ result
+    // Check if the file exists and has a path and mimetype
+    if (!file || !file.path || !file.mimetype) {
+        throw new Error('Invalid file to upload.');
     }
-    catch (error) {
-        console.error(error);
-        throw error; // Thêm throw để xử lý lỗi ở cấp cao hơn nếu cần
+
+    try {
+        // Only proceed if the file type is supported
+        const supportedTypes = ['image', 'video', 'audio']; // Add or remove types based on your needs
+        const fileType = file.mimetype.split('/')[0];
+
+        if (!supportedTypes.includes(fileType)) {
+            throw new Error('Unsupported file type for upload.');
+        }
+
+        // Use Cloudinary's uploader to upload the file
+        const result = await cloudinary.uploader.upload(file.path, {
+            resource_type: fileType, // Ensure the resource type is set based on the file
+            // You can add more options here based on Cloudinary's API, like folder, tags, etc.
+        });
+
+        // Check if the upload result is valid and contains a secure URL
+        if (!result || !result.secure_url) {
+            throw new Error('Failed to upload file to Cloudinary.');
+        }
+
+        return result.secure_url; // Return the secure URL of the uploaded file
+    } catch (error) {
+        // Log the error for server-side debugging
+        console.error('Error uploading file to Cloudinary:', error);
+        // Rethrow the error to be handled by the caller
+        throw error;
     }
 }
+
 
 const uploads = multer({ storage });
 
