@@ -4,8 +4,8 @@ const Schema = new mongoose.Schema(
   {
     userId: { type: ObjectId, required: true },
     itemId: {
-      type: ObjectId,
-      required: true,
+        type: ObjectId,
+        required: true
     },
   },
   {

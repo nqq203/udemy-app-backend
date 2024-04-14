@@ -1,19 +1,17 @@
-const CartRepository = require("../repositories/cartRepository");
-const CourseRepository = require("../repositories/courseRepository");
+const CartRepository = require('../repositories/cartRepository');
+const CourseRepository = require('../repositories/courseRepository');
 const {
   ConflictResponse,
   BadRequest,
   InternalServerError,
   NotFoundResponse,
-} = require("../common/error.response");
+} = require('../common/error.response');
 const {
   CreatedResponse,
   SuccessResponse,
-} = require("../common/success.response");
-const mongoose = require("mongoose");
-const { ObjectId } = mongoose.Types;
+} = require('../common/success.response');
 
-module.exports = class CartService {
+module.exports = class UserService {
   constructor() {
     this.repository = new CartRepository();
     this.courseRepository = new CourseRepository();
@@ -21,49 +19,58 @@ module.exports = class CartService {
 
   async createCart(data) {
     try {
-      console.log(data);
-      if (data.itemId === "") {
-        return new BadRequest("Missed information");
-      }
-      data = {
-        userId: new ObjectId(data.userId),
-        itemId: new ObjectId(data.itemId),
-      };
-      const cart = this.repository.create(data);
-      if (!cart) {
-        return new BadRequest("Create cart failed");
-      }
-      return new CreatedResponse({ message: "Cart created", metadata: cart });
-    } catch (err) {
-      console.log(err);
-      return new InternalServerError();
+      if (!data.itemId) return new BadRequest('Missed information');
+      const cart = await this.repository.create(data);
+      const newCart = await cart.save();
+      return new CreatedResponse({
+        message: 'Cart created',
+        metadata: newCart,
+      });
+    } catch (error) {
+      console.error(error);
+      return null;
     }
   }
-
   async getCart(userId) {
     try {
-      let cart = await this.repository.getCart(userId);
-
-      if (!cart) {
-        return new NotFoundResponse("No data found in cart");
+      const carts = await this.repository.getAll(userId);
+      if (!carts) {
+        return new NotFoundResponse('Cart not found');
       }
-  
-      let itemList = [];
-  
-      await Promise.all(cart.map(async (item) => {
-        const course = await this.courseRepository.getCourseById(item.itemId);
-        console.log(123, course);
-        itemList.push(course);
-      }));
-  
-      console.log(123, itemList);
-  
-      console.log(345678);
-      return new SuccessResponse({ message: "Cart found", metadata: itemList });
-    } catch (err) {
-      console.log(err);
-      return new InternalServerError();
+      console.log(carts.length);
+      let itemCartList = [];
+      await Promise.all(
+        carts.map(async (cart) => {
+          cart.itemId = cart.itemId.toString();
+          const itemCart = await this.courseRepository.getCoursebyId(
+            cart.itemId
+          );
+          itemCartList.push(itemCart);
+        })
+      );
+      return new SuccessResponse({
+        message: 'Cart found',
+        metadata: itemCartList,
+      });
+    } catch (error) {
+      console.error(error);
+      return null;
     }
   }
-  
+
+  async deleteCart(data) {
+    try {
+      if (!data.itemId) {
+        return new BadRequest('Missed information');
+      }
+      const deletedCart = await this.repository.delete(data);
+      return new SuccessResponse({
+        message: 'Cart deleted',
+        metadata: deletedCart,
+      });
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
 };

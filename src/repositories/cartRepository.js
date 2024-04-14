@@ -4,6 +4,10 @@ module.exports = class CartRepository{
   constructor(){
     this.model = Carts
   }
+  async getAll(userId){
+    const carts = await Carts.find({userId});
+    return carts
+  }
   async getCart(id){
     const cart = await this.model.find({userId: id});
     return cart

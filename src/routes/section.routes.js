@@ -22,5 +22,9 @@ sectionRouter.get('/list', verifyToken, async (req, res) => {
   const response = await service.getAllSections(data);
   res.send(response.responseBody());
 });
-
+sectionRouter.get('/', async(req,res) => {
+  const courseId = req.query.id;
+  const response = await service.getSectionsByCourseId(courseId);
+  res.send(response.responseBody())
+})
 module.exports = { sectionRouter };
