@@ -15,7 +15,7 @@ const Schema = new mongoose.Schema(
       minLength: 2,
       maxLength: 512,
     },
-    price: { type: Number, required: true },
+    price: { type: Number },
     category: { type: String, enum: Object.values(COURSE_CATEGORY) },
     instructorId: { type: ObjectId, required: true },
     ratings: {
@@ -26,6 +26,10 @@ const Schema = new mongoose.Schema(
       type: String,
       default: "https://via.placeholder.com/300x300.png?text=Course+Image",
     },
+    publish: {
+      type: Boolean,
+      default: false,
+    }
   },
   {
     collection: "courses",

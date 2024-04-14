@@ -23,4 +23,18 @@ lectureRouter.post('/create', verifyToken, verifyToken, async (req, res) => {
   res.send(response.responseBody());
 });
 
+lectureRouter.put('/update-lecture', verifyToken, async (req, res) => {
+  const data = req.body;
+  const response = await service.updateOneLecture(data);
+
+  res.send(response.responseBody());
+});
+
+lectureRouter.delete('/delete-lecture', verifyToken, async (req, res) => {
+  const data = req.body;
+  const response = await service.deleteOneLecture(data);
+
+  res.send(response.responseBody());
+});
+
 module.exports = { lectureRouter };

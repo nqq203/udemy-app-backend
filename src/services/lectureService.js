@@ -58,4 +58,52 @@ module.exports = class LectureService{
         return new InternalServerError();
       }
     }
-}
+
+    async updateOneLecture(data) {
+      try {
+        const { _id, title, url, duration } = data;
+        const updatedData = { title, url, duration };
+        const updatedLecture = await this.repository.update({_id}, updatedData);
+        if (!updatedLecture) {
+          return new NotFoundResponse("Lecture not found");
+        }
+        return new SuccessResponse({
+          message: "Lecture updated successfully",
+          metadata: updatedLecture,
+        });
+      }
+      catch (err) {
+        return new InternalServerError();
+      }
+    }
+
+    async deleteOneLecture(lectureId) {
+      try {
+        const deletedLecture = await this.repository.delete(lectureId);
+        if (!deletedLecture) {
+          return new NotFoundResponse("Lecture not found");
+        }
+        return new SuccessResponse({
+          message: "Lecture deleted successfully",
+          metadata: deletedLecture,
+        });
+      } catch(error) {
+        console.log(error);
+        return new InternalServerError();
+      }
+    }
+
+    async deleteLecturesBySectionId(sectionId) {
+      try {
+        const result = await this.repository.deleteMany({sectionId: sectionId});
+        return new SuccessResponse({
+          message: "lectures deleted successfully",
+          metadata: result,
+        })  
+      }
+      catch (err) {
+        console.log(err);
+        return new InternalServerError();
+      }
+    }
+} 
