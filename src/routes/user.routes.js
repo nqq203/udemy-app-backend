@@ -56,12 +56,8 @@ userRouter.post('/change-password', verifyToken, async (req, res) => {
   res.send(response.responseBody());
 });
 
-userRouter.post('/update-profile', verifyToken, async (req, res) => {
-  //Test data
-  const data = {
-    fullName: "Tran Minh Anh",
-    email: "tranminhanh1912@gmail.com",
-  }
+userRouter.patch('/update-profile', verifyToken, async (req, res) => {
+  const data = req.body;
   const response = await service.updateProfile(data);
   res.send(response.responseBody());
 });
@@ -69,6 +65,16 @@ userRouter.post('/update-profile', verifyToken, async (req, res) => {
 userRouter.get('/list', async (req, res) => {
   const response = await service.getAllUsers();
   res.send(response.responseBody());
+});
+
+userRouter.post('/signin', async (req, res) => {
+  const data = req.body;
+  const response = await service.signIn(data);
+  if (response instanceof SuccessResponse) {
+    res.set('Authorization', `Bearer ${response.payload.metadata.accessToken}`);
+  }
+ 
+  res.send(response.responseBody())
 });
 
 module.exports = { userRouter };
