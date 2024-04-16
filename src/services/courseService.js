@@ -157,6 +157,22 @@ module.exports = class CourseService {
         }
     }
 
+    async getUserCourses(courses) {
+      try {
+        const userCourses = await this.repository.getAllUserCourses(courses);
+        if (!userCourses) {
+          return new NotFoundResponse("Empty list of courses");
+        }
+        return new SuccessResponse({
+          message: "Select list courses successfully",
+          metadata: userCourses,
+        });
+      }
+      catch (error) {
+        return new InternalServerError();
+      }
+    }
+
     async getCoursePagination(pageNumber,PAGE_SIZE=3, query = {}){
         try {
             const courses = await this.courseRepo.getCoursePagination(pageNumber,PAGE_SIZE, query);

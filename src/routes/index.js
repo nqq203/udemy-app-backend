@@ -17,7 +17,7 @@ function route(app) {
   app.use('/users', userRouter);
   app.use('/lectures',lectureRouter);
   app.use('/carts', cartRouter)
-  app.use('/order', orderRouter);
+  app.use('/orders', orderRouter);
   app.use('/review', reviewRouter);
   app.use('/courses', courseRouter);
   app.use('/sections', sectionRouter);

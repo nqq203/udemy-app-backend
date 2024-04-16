@@ -35,7 +35,7 @@ userRouter.post('/logout', verifyToken, async (req, res) => {
 });
 
 userRouter.get('/email', verifyToken, checkRoles(['LEARNER']), async (req, res) => {
-  const { email = '' } = req.body;
+  const { email = '' } = req.query;
   if (!email) {
     return res.send(new BadRequest("Missed email").responseBody());
   } 
@@ -48,11 +48,9 @@ userRouter.get('/id', verifyToken, async (req, res) => {
   const response = await service.getUserById(id);
 });
 
-userRouter.post('/change-password', verifyToken, async (req, res) => {
-  //Test data
-  const email = "abc123@gmail.com";
-  const newPassword = "Udemy12345!";
-  const response = await service.handlePasswordChange(email, newPassword);
+userRouter.patch('/change-password', verifyToken, async (req, res) => {
+  const { email, currentPassword, newPassword } = req.body;
+  const response = await service.handlePasswordChange(email, currentPassword, newPassword);
   res.send(response.responseBody());
 });
 

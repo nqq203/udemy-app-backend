@@ -57,6 +57,34 @@ courseRouter.post('/list-course', verifyToken, async (req, res) => {
   res.send(response.responseBody());
 });
 
+courseRouter.get('/get-course', verifyToken, async (req, res) => {
+  const data = req.query.courseId.toObjectId();
+  const response = await service.getCourseById(data);
+  res.send(response.responseBody());
+});
+
+courseRouter.get('/get-user-courses', verifyToken, async (req, res) => {
+  const data = req.query;
+  if (data.courses === undefined) {
+    return res.send({message: 'Please provide courses'});
+  }
+  const courses = data.courses.courses.map(course => course.toObjectId())
+  const response = await service.getUserCourses(courses);
+  console.log(response.responseBody());
+  res.send(response.responseBody());
+});
+
+courseRouter.get('/get-cart-courses', verifyToken, async (req, res) => {
+  const { courses } = req.query;
+  if (courses === undefined || courses.length === 0) {
+    return res.send({message: 'Please provide courses'});
+  }
+  const courseData = courses.map(course => course.toObjectId())
+  const response = await service.getUserCourses(courseData);
+  res.send(response.responseBody());
+});
+  
+
 courseRouter.post('/search', verifyToken, async (req, res) => {
   const data = req.body;
   const response = await service.getCourseByName(data);
