@@ -10,6 +10,10 @@ const Schema = new mongoose.Schema(
       required: true,
       minLength: 8,
     },
+    biography: { type: String },
+    website: { type: String },
+    facebook: { type: String },
+    linkedin: { type: String},
     role: {
       type: String,
       required: true,

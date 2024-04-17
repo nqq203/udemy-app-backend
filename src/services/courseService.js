@@ -125,6 +125,42 @@ module.exports = class CourseService {
       if (!keyword) {
         return new BadRequest("Keywords id are required");
       }
+    }
+    catch (error) {
+      console.log(error);
+      return new InternalServerError();
+    }
+  }
+    async getUserCourses(courses) {
+      try {
+        const userCourses = await this.repository.getAllUserCourses(courses);
+        if (!userCourses) {
+          return new NotFoundResponse("Empty list of courses");
+        }
+        return new SuccessResponse({
+          message: "Select list courses successfully",
+          metadata: userCourses,
+        });
+      }
+      catch (error) {
+        return new InternalServerError();
+      }
+    }
+
+    async getCoursePagination(pageNumber,PAGE_SIZE=3, query = {}){
+        try {
+            const courses = await this.courseRepo.getCoursePagination(pageNumber,PAGE_SIZE, query);
+            if(!courses || courses.length == 0){
+                return new NotFoundResponse("Courses pagination not found")
+            }
+            
+            var instructors = []
+            await Promise.all(courses?.results.map(async (course) => {
+                const _id = course.instructorId;
+                const instructor = await this.userRepo.getByEntity(_id);
+                instructors.push(instructor.fullName);
+            }));
+            courses.instructors = instructors
 
       const regex = new RegExp(keyword, 'i');
       var query;
@@ -325,7 +361,7 @@ module.exports = class CourseService {
           await sectionService.deleteSection(section._id);
         }))
       }
-      
+
       const deletedCourse = await this.courseRepo.delete({ _id: courseId });
       if (!deletedCourse) {
         return BadRequest("Delete course not found");

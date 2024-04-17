@@ -43,7 +43,6 @@ const verifyToken = async (req, res, next) => {
       if (!user) {
         return res.send(new AuthFailureResponse("Invalid token").responseBody());
       }
-      console.log(session);
       req.session = session;
       req.user = user;
 
