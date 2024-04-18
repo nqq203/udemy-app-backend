@@ -89,6 +89,19 @@ module.exports = class CourseRepository{
           return null;
         }
       }
+
+      async getAllUserCourses(courses){
+        try {
+          const userCourses = await this.model.find({ _id: { $in: 
+              courses
+            } 
+          });
+          return userCourses;
+        } catch (error) {
+          console.error(error);
+          return null;
+        }
+      }
     
       async update(filter, entity) {
         try {
