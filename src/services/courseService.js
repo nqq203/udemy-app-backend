@@ -111,16 +111,16 @@ module.exports = class CourseService {
         }
     }
 
-    // Get all information of the course including sections,lectures and instructor
+    // Get all information of the course including sections, lectures and instructor
     async getCourseById(_id){
         try {
-            const course = await this.courseRepo.getCoursebyId({_id});
+            const course = await this.courseRepo.getOneByEntity({_id});
             let courseId = _id
             const sections = await this.sectionRepo.getAllByEntity({courseId})
-            var lectures = []
+            let lectures = []
             
-            var _id = course.instructorId
-            var instructor = await this.userRepo.getByEntity({_id})            
+            let instructorId = course.instructorId;
+            let instructor = await this.userRepo.getByEntity({_id: instructorId})            
 
             if (!sections || sections.length === 0) {
                 // Handle the case where sections is undefined or empty

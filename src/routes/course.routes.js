@@ -97,4 +97,13 @@ courseRouter.post("/get-course-detail", verifyToken, async (req, res) => {
   res.send(response.responseBody());
 });
 
+// API for getting course detail by course id
+courseRouter.get("/:id", async (req, res) => {
+  const courseId = req.params.id;
+  const response = await service.getCourseById(courseId);
+
+  res.send(response.responseBody());
+});
+
+
 module.exports = { courseRouter };
