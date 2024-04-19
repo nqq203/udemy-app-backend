@@ -9,6 +9,11 @@ const {
   SuccessResponse,
 } = require("../common/success.response");
 
+String.prototype.toObjectId = function() {
+  var ObjectId = (require('mongoose').Types.ObjectId);
+  return new ObjectId(this.toString());
+};
+
 userRouter.post('/signup', async (req, res) => {
   const userData = req.body;
   const response = await service.createUser(userData);
@@ -44,8 +49,9 @@ userRouter.get('/email', verifyToken, checkRoles(['LEARNER']), async (req, res) 
 });
 
 userRouter.get('/id', verifyToken, async (req, res) => {
-  const id = req.body._id;
+  const id = req.query.id;
   const response = await service.getUserById(id);
+  res.send(response.responseBody());
 });
 
 userRouter.patch('/change-password', verifyToken, async (req, res) => {
