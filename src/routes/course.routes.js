@@ -41,7 +41,7 @@ courseRouter.get('/search-courses-ratings', async (req, res) => {
   res.send(response.responseBody());
 })
 
-courseRouter.post('/create-one-course', uploads.single('imageFile'), async (req, res) => {
+courseRouter.post('/create-one-course', verifyToken, uploads.single('imageFile'), async (req, res) => {
   const courseData = JSON.parse(req.body.courseData);
   const imageFile = req.file;
   const response = await service.createCourse(courseData, imageFile);
@@ -49,11 +49,9 @@ courseRouter.post('/create-one-course', uploads.single('imageFile'), async (req,
   res.send(response.responseBody());
 });
 
-courseRouter.post('/list-course', async (req, res) => {
+courseRouter.post('/list-course', verifyToken, async (req, res) => {
   const data = req.body;
-  // console.log(data);
   const response = await service.getAllCoursesByUserId(data.instructorId);
-
   res.send(response.responseBody());
 });
 
@@ -101,7 +99,7 @@ courseRouter.post('/create-completed-course', verifyToken, uploads.array('files'
   res.send(response.responseBody());
 });
 
-courseRouter.put('/update-course', uploads.single('imageFile'), async (req, res) => {
+courseRouter.put('/update-course', verifyToken, uploads.single('imageFile'), async (req, res) => {
   const courseData = JSON.parse(req.body.courseData);
   const imageFile = req.file;
   // console.log(courseData);
@@ -110,14 +108,14 @@ courseRouter.put('/update-course', uploads.single('imageFile'), async (req, res)
   res.send(response.responseBody());
 });
 
-courseRouter.delete("/delete-course/:courseId", async (req, res) => {
+courseRouter.delete("/delete-course/:courseId", verifyToken, async (req, res) => {
   const { courseId } = req.params;
   const response = await service.deleteCourse(courseId);
 
   res.send(response.responseBody());
 });
 
-courseRouter.post("/get-course-detail", async (req, res) => {
+courseRouter.post("/get-course-detail", verifyToken, async (req, res) => {
   const data = req.body;
   // console.log(data);
   const response = await service.getInstructorDetailCourse(data.courseId);

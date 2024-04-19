@@ -29,7 +29,8 @@ userRouter.post('/signin', async (req, res) => {
 })
 
 userRouter.post('/logout', verifyToken, async (req, res) => {
-  const data = req.body;
+  const data = req.session;
+  console.log(req.session);
   const response = await service.signOut(data);
   res.send(response.responseBody());
 });

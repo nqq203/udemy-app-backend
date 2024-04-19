@@ -18,7 +18,7 @@ lectureRouter.get('/duration', async(req,res) => {
     res.send(response.responseBody());
 })
 
-lectureRouter.post('/create', uploads.single("videoFile"), async (req, res) => {
+lectureRouter.post('/create', verifyToken, uploads.single("videoFile"), async (req, res) => {
   const lectureData = JSON.parse(req.body.lectureData);
   const videoFile = req.file;
   console.log(videoFile);
@@ -26,7 +26,7 @@ lectureRouter.post('/create', uploads.single("videoFile"), async (req, res) => {
   res.send(response.responseBody());
 });
 
-lectureRouter.put('/update-lecture', uploads.single("videoFile"), async (req, res) => {
+lectureRouter.put('/update-lecture', verifyToken, uploads.single("videoFile"), async (req, res) => {
   const lectureData = JSON.parse(req.body.lectureData);
   const videoFile = req.file;
   const response = await service.updateOneLecture(lectureData, videoFile);
@@ -34,7 +34,7 @@ lectureRouter.put('/update-lecture', uploads.single("videoFile"), async (req, re
   res.send(response.responseBody());
 });
 
-lectureRouter.delete('/delete-lecture/:lectureId', async (req, res) => {
+lectureRouter.delete('/delete-lecture/:lectureId', verifyToken, async (req, res) => {
   const { lectureId } = req.params;
   console.log(lectureId);
   const response = await service.deleteOneLecture(lectureId);

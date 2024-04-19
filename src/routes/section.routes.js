@@ -11,7 +11,7 @@ sectionRouter.get('/', async(req,res) => {
     res.send(response.responseBody())
 })
 
-sectionRouter.post('/create', async (req, res) => {
+sectionRouter.post('/create', verifyToken, async (req, res) => {
   const data = req.body;
   console.log(data);
   const response = await service.createSection(data);
@@ -30,7 +30,7 @@ sectionRouter.get('/list', verifyToken, async (req, res) => {
   res.send(response.responseBody());
 });
 
-sectionRouter.put('/update-section', async (req, res) => {
+sectionRouter.put('/update-section', verifyToken, async (req, res) => {
   const data = req.body;
   console.log(data);
   const response = await service.updateSection(data);
@@ -38,7 +38,7 @@ sectionRouter.put('/update-section', async (req, res) => {
   res.send(response.responseBody());
 });
 
-sectionRouter.delete('/delete-section/:sectionId', async (req, res) => {
+sectionRouter.delete('/delete-section/:sectionId', verifyToken, async (req, res) => {
   const { sectionId } = req.params;
   const response = await service.deleteSection(sectionId);
 

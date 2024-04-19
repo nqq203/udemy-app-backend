@@ -11,6 +11,7 @@ const {
   SuccessResponse,
 } = require("../common/success.response");
 const { uploadFileToCloud } = require('../utils/cloudinary');
+const { getVideoDurationInSeconds } = require('get-video-duration')
 
 module.exports = class LectureService{
     constructor(){
@@ -48,19 +49,25 @@ module.exports = class LectureService{
 
     async createOneLecture(lectureData, videoFile) {
       try {
-        const { title, sectionId, url, duration } = lectureData;
-        console.log(lectureData);
+        const { title, sectionId } = lectureData;
         if (!title || !sectionId) {
           return new BadRequest("Missing information");
         }
 
         const fileUrl = await uploadFileToCloud(videoFile);
 
+        let lectureDuration;
+        await getVideoDurationInSeconds(
+          fileUrl
+        ).then((duration) => {
+          lectureDuration = duration;
+        })
+
         const data = {
           title,
           sectionId,
           url: fileUrl,
-          duration,
+          duration: BigInt(parseInt(lectureDuration)),
         }
 
         const newLecture = await this.repository.create(data);
@@ -82,8 +89,13 @@ module.exports = class LectureService{
           const fileUrl = await uploadFileToCloud(videoFile);
           console.log(fileUrl);
           updatedData.url = fileUrl;
+          await getVideoDurationInSeconds(
+            fileUrl
+          ).then((duration) => {
+            updatedData.duration = BigInt(parseInt(duration, 10));
+          })
         }
-        
+
         const updatedLecture = await this.repository.update({_id}, updatedData);
         if (!updatedLecture) {
           return new NotFoundResponse("Lecture not found");
