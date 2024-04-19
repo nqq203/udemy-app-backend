@@ -65,8 +65,8 @@ module.exports = class UserService {
       if (!userExists) {
         return new NotFoundResponse("User not found");
       }
-
-      const user = await this.repository.update(userExists, {
+      
+      const user = await this.repository.update({ email }, {
         fullName,
         biography,
         website,
