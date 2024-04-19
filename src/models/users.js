@@ -10,6 +10,7 @@ const Schema = new mongoose.Schema(
       required: true,
       minLength: 8,
     },
+    wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: "courses" }],
     biography: { type: String },
     website: { type: String },
     facebook: { type: String },

@@ -345,6 +345,7 @@ module.exports = class CourseService {
   //   }
   // }
 
+  // Getting courses of a specific instructor
   async getAllCoursesByUserId(instructorId) {
     try {
       let listCourse = await this.courseRepo.getAll();
@@ -361,7 +362,6 @@ module.exports = class CourseService {
       return new InternalServerError();
     }
   }
-
 
   async getCourseByCId(courseId) {
     try {
@@ -515,4 +515,5 @@ module.exports = class CourseService {
       return new InternalServerError();
     }
   }
+
 }
