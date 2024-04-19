@@ -51,9 +51,7 @@ courseRouter.post('/create-one-course', verifyToken, uploads.single('imageFile')
 
 courseRouter.post('/list-course', verifyToken, async (req, res) => {
   const data = req.body;
-  // console.log(data);
   const response = await service.getAllCoursesByUserId(data.instructorId);
-
   res.send(response.responseBody());
 });
 

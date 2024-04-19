@@ -24,7 +24,6 @@ module.exports = class UserService {
   async createUser(data) {
     try {
       const { fullname, email, password } = data;
-      console.log(data);
       if (!fullname || !email || !password) {
         return new BadRequest("Missed information");
       }
@@ -153,9 +152,34 @@ module.exports = class UserService {
     return new SuccessResponse({message: "Login successfully", metadata: {userInfo: user, accessToken: token}});
   }
 
+  async signInWithGoogle(data) {
+    const { email } = data;
+
+    const user = await this.repository.getByEntity({email});
+    if(!user){
+      return new NotFoundResponse("User not found");
+    }
+    const expiredTime = moment().subtract(1, 'hour');
+    const currentSession = await this.sessionRepository.getByEntity({userId: user._id, status: sessionConstant.STATUS_TOKEN.ACTIVE, expiredAt: {$gte: expiredTime}});
+    if (currentSession){
+      const updateSession = await this.sessionRepository.update({_id: currentSession._id}, {status: sessionConstant.STATUS_TOKEN.INACTIVE, logoutAt: moment()});
+      if (!updateSession) {
+        return new InternalServerError();
+      }
+    }
+    const session = await this.sessionRepository.create({
+      userId: user._id,
+      expiredAt: moment().add(1, 'hour'),
+      status: sessionConstant.STATUS_TOKEN.ACTIVE
+    })
+    const token = jwt.sign({sessionId: session._id, userId: user._id}, process.env.JWT_SECRET_KEY, {expiresIn: '1h'});
+
+    return new SuccessResponse({message: "Login successfully", metadata: {userInfo: user, accessToken: token}});
+  } 
+
   async signOut(data){
     const {sessionId} = data;
-    const session = await this.sessionRepository.update({sessionId}, {status: sessionConstant.STATUS_TOKEN.INACTIVE, logoutAt: moment()});
+    const session = await this.sessionRepository.update({_id: sessionId}, {status: sessionConstant.STATUS_TOKEN.INACTIVE, logoutAt: moment()});
     if (!session) {
       return new InternalServerError();
     }
@@ -170,7 +194,6 @@ module.exports = class UserService {
       }
       return new SuccessResponse({message: "User found", metadata: user});
     } catch (err) {
-      console.log(err);
       return new InternalServerError();
     }
   }
@@ -183,7 +206,6 @@ module.exports = class UserService {
       }
       return new SuccessResponse({message: "User found", metadata: users});
     } catch (err) {
-      console.log(err);
       return new InternalServerError();
     }
   }
@@ -196,10 +218,26 @@ module.exports = class UserService {
       }
       return new SuccessResponse({message: "User found", metadata: user});
     } catch (err) {
-      console.log(err);
       return new InternalServerError();
     }
   }
   //Update, Delete,...
 
+  async findOrCreateGoogleUser(profile) {
+    console.log(profile);
+    const email = profile.emails[0].value;
+    let user = await this.repository.getByEntity({ email: email });
+    if (user) {
+      return user;
+    }
+    else {
+      const newUser = {
+        fullName: profile.displayName,
+        email: email,
+        googleId: profile.id,
+        role: "LEARNER",
+      }
+      return await this.repository.create(newUser);
+    }
+  }
 };

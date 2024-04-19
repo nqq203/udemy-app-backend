@@ -1,4 +1,5 @@
 const LectureRepository = require('../repositories/lectureRepository');
+const SectionRepository = require('../repositories/sectionRepository');
 const {
   ConflictResponse,
   BadRequest,
@@ -9,10 +10,13 @@ const {
   CreatedResponse,
   SuccessResponse,
 } = require("../common/success.response");
+const { uploadFileToCloud } = require('../utils/cloudinary');
+const { getVideoDurationInSeconds } = require('get-video-duration')
 
 module.exports = class LectureService{
     constructor(){
         this.repository = new LectureRepository();
+        this.sectionRepo = new SectionRepository();
     }
 
     async getLecturesBySectionId(sectionId){
@@ -43,13 +47,31 @@ module.exports = class LectureService{
         }
     }
 
-    async createOneLecture(data) {
+    async createOneLecture(lectureData, videoFile) {
       try {
-        const { title, sectiondId, url, duration } = data;
-        if (!title || !url) {
-          return new BadRequest("Please provide title and url");
+        const { title, sectionId } = lectureData;
+        if (!title || !sectionId) {
+          return new BadRequest("Missing information");
         }
+
+        const fileUrl = await uploadFileToCloud(videoFile);
+
+        let lectureDuration;
+        await getVideoDurationInSeconds(
+          fileUrl
+        ).then((duration) => {
+          lectureDuration = duration;
+        })
+
+        const data = {
+          title,
+          sectionId,
+          url: fileUrl,
+          duration: BigInt(parseInt(lectureDuration)),
+        }
+
         const newLecture = await this.repository.create(data);
+        console.log(newLecture);
         return new CreatedResponse({
           message: "Create lecture successfully",
           metadata: newLecture,
@@ -59,17 +81,34 @@ module.exports = class LectureService{
       }
     }
 
-    async updateOneLecture(data) {
+    async updateOneLecture(lectureData, videoFile) {
       try {
-        const { _id, title, url, duration } = data;
-        const updatedData = { title, url, duration };
+        const { _id, title, sectionId, url, duration } = lectureData;
+        const updatedData = { title, url, duration, sectionId };
+        if (videoFile) {
+          const fileUrl = await uploadFileToCloud(videoFile);
+          console.log(fileUrl);
+          updatedData.url = fileUrl;
+          await getVideoDurationInSeconds(
+            fileUrl
+          ).then((duration) => {
+            updatedData.duration = BigInt(parseInt(duration, 10));
+          })
+        }
+
         const updatedLecture = await this.repository.update({_id}, updatedData);
         if (!updatedLecture) {
           return new NotFoundResponse("Lecture not found");
+        } 
+
+        const newResponse = {
+          ...updatedLecture._doc,
+          title: title,
         }
+        
         return new SuccessResponse({
           message: "Lecture updated successfully",
-          metadata: updatedLecture,
+          metadata: newResponse,
         });
       }
       catch (err) {
@@ -79,7 +118,9 @@ module.exports = class LectureService{
 
     async deleteOneLecture(lectureId) {
       try {
-        const deletedLecture = await this.repository.delete(lectureId);
+        console.log(lectureId);
+        const deletedLecture = await this.repository.delete({_id: lectureId});
+        console.log(deletedLecture);
         if (!deletedLecture) {
           return new NotFoundResponse("Lecture not found");
         }

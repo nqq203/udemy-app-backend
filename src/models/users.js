@@ -7,7 +7,6 @@ const Schema = new mongoose.Schema(
     fullName: { type: String, required: true },
     password: {
       type: String,
-      required: true,
       minLength: 8,
     },
     wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: "courses" }],
