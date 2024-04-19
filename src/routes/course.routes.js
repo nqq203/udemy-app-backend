@@ -51,9 +51,7 @@ courseRouter.post('/create-one-course', verifyToken, uploads.single('imageFile')
 
 courseRouter.post('/list-course', verifyToken, async (req, res) => {
   const data = req.body;
-  // console.log(data);
   const response = await service.getAllCoursesByUserId(data.instructorId);
-
   res.send(response.responseBody());
 });
 
@@ -124,5 +122,14 @@ courseRouter.post("/get-course-detail", verifyToken, async (req, res) => {
 
   res.send(response.responseBody());
 });
+
+// API for getting course detail by course id
+courseRouter.get("/:id", async (req, res) => {
+  const courseId = req.params.id;
+  const response = await service.getCourseById(courseId);
+
+  res.send(response.responseBody());
+});
+
 
 module.exports = { courseRouter };

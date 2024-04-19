@@ -1,5 +1,6 @@
 const ReviewRepository = require("../repositories/reviewRepository");
-
+const CourseService = require("./courseService");
+const courseService = new CourseService();
 const {
   ConflictResponse,
   BadRequest,
@@ -28,4 +29,6 @@ module.exports = class ReviewService {
       return new InternalServerError();
     }
   }
+
+  
 };

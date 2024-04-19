@@ -43,9 +43,11 @@ module.exports = class SectionService{
       //   return new BadRequest("Course is not exist");
       // }
       const newSection = await this.repository.create(data);
+      const response = await this.repository.getAllByEntity({courseId});
+      console.log(response);
       return new CreatedResponse({
         message: "Section created successfully",
-        metadata: newSection
+        metadata: response[response.length - 1]
       });
     } catch (error) {
       return new InternalServerError();
@@ -114,6 +116,7 @@ module.exports = class SectionService{
 
   async deleteSection(sectionId) {
     try {
+      console.log(sectionId);
       const lectureService = new LectureService();
       await lectureService.deleteLecturesBySectionId(sectionId);
       const deletedSection = await this.repository.delete({_id: sectionId});
