@@ -70,7 +70,6 @@ courseRouter.get('/get-user-courses', verifyToken, async (req, res) => {
   }
   const courses = data.courses.courses.map(course => course.toObjectId())
   const response = await service.getUserCourses(courses);
-  console.log(response.responseBody());
   res.send(response.responseBody());
 });
 

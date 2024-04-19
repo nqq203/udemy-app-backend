@@ -20,9 +20,10 @@ const Schema = new mongoose.Schema(
       default: [],
       required: true,
   },
-    country: { type: String, required: true },
+    country: { type: String },
     status: { type: String, enum: Object.values(ORDER_STATUS) },
     paymentMethod: { type: String, enum: Object.values(PAYMENT_METHOD) },
+    paymentId: { type: String },
   },
   {
     collection: "orders",

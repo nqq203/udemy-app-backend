@@ -17,7 +17,7 @@ module.exports = class OrderService {
 
   async createOrder(data) {
     try {
-      const { userId, items, country, price, paymentMethod } = data;
+      const { userId, items, country, price, paymentMethod, paymentId } = data;
       if (!userId || !items || !country || !price || !paymentMethod) {
         return new BadRequest("Missed information");
       }
@@ -27,8 +27,9 @@ module.exports = class OrderService {
         items: items,
         country: country,
         price: price,
-        status: ORDER_STATUS.PENDING,
+        status: paymentId ? ORDER_STATUS.PAID : ORDER_STATUS.PENDING,
         paymentMethod: paymentMethod === "paypal" ? PAYMENT_METHOD.WALLET : PAYMENT_METHOD.CREDIT_CARD,
+        paymentId: paymentId || "",
       });
 
       if (!order) {
