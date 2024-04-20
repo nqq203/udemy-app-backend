@@ -10,6 +10,8 @@ const {
 } = require("../common/success.response");
 const { ORDER_STATUS, PAYMENT_METHOD } = require("../constants/order.constant");
 
+const CourseService = require("./courseService");
+const courseService = new CourseService();
 module.exports = class OrderService {
   constructor() {
     this.repository = new OrderRepository();
@@ -17,26 +19,14 @@ module.exports = class OrderService {
 
   async createOrder(data) {
     try {
-      const { userId, courseId, country, price, paymentMethod } = data;
-      if (!userId || !courseId || !country || !price || !paymentMethod) {
+      const { userId, items, country, price, paymentMethod } = data;
+      if (!userId || !items || !country || !price || !paymentMethod) {
         return new BadRequest("Missed information");
       }
 
-      // const courseExists = await this.repository.getByEntity({ courseId });
-      // if (!courseExists) {
-      //   return new NotFoundResponse("Course not found");
-      // }
-
-      //price = courseExists.price;
-      
-      // const userExists = await this.repository.getByEntity({ userId });
-      // if (!userExists) {
-      //   return new NotFoundResponse("User not found");
-      // }
-
       const order = await this.repository.create({
         userId: userId,
-        courseId: courseId,
+        items: items,
         country: country,
         price: price,
         status: ORDER_STATUS.PENDING,
@@ -78,6 +68,32 @@ module.exports = class OrderService {
       return new SuccessResponse({message: "Order found", metadata: orders});
     } catch (err) {
       console.log(err);
+      return new InternalServerError();
+    }
+  }
+
+  async getCompletedOrdersByInstructorId(instructorId) {
+    try {
+      // Get all completed orders
+      const orders = await this.repository.getCompletedOrdersByInstructorId(instructorId);
+
+      if (!orders) {
+        return new NotFoundResponse("Order not found");
+      }
+      
+      return new SuccessResponse({message: "Order found", metadata: orders});
+    } catch (err) {
+      console.log(err);
+      return new InternalServerError();
+    }
+  }
+
+  async getCompletedOrdersByInstructorIdAndYear(instructorId, year) {
+    try {
+      const result = await this.repository.getCompletedOrdersByInstructorIdAndYear(instructorId, year);
+      return new SuccessResponse({message: "Orders found", metadata: result});
+    } catch (error) {
+      console.error(error);
       return new InternalServerError();
     }
   }

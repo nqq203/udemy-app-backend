@@ -50,8 +50,13 @@ module.exports = class ReviewRepository{
         }
     }
 
-    async getReviewsPagination(courseId){
-
+    async getAllByEntity(entity){
+        try {
+            const review = await this.model.find(entity);
+            return review;
+        } catch (error) {
+            console.error(error);
+            return null;
+        }
     }
-
 }

@@ -9,6 +9,11 @@ const {
   SuccessResponse,
 } = require("../common/success.response");
 
+String.prototype.toObjectId = function() {
+  var ObjectId = (require('mongoose').Types.ObjectId);
+  return new ObjectId(this.toString());
+};
+
 userRouter.post('/signup', async (req, res) => {
   const userData = req.body;
   const response = await service.createUser(userData);
@@ -29,13 +34,14 @@ userRouter.post('/signin', async (req, res) => {
 })
 
 userRouter.post('/logout', verifyToken, async (req, res) => {
-  const data = req.body;
+  const data = req.session;
+  console.log(req.session);
   const response = await service.signOut(data);
   res.send(response.responseBody());
 });
 
 userRouter.get('/email', verifyToken, checkRoles(['LEARNER']), async (req, res) => {
-  const { email = '' } = req.body;
+  const { email = '' } = req.query;
   if (!email) {
     return res.send(new BadRequest("Missed email").responseBody());
   } 
@@ -44,24 +50,19 @@ userRouter.get('/email', verifyToken, checkRoles(['LEARNER']), async (req, res) 
 });
 
 userRouter.get('/id', verifyToken, async (req, res) => {
-  const id = req.body._id;
+  const id = req.query.id;
   const response = await service.getUserById(id);
-});
-
-userRouter.post('/change-password', verifyToken, async (req, res) => {
-  //Test data
-  const email = "abc123@gmail.com";
-  const newPassword = "Udemy12345!";
-  const response = await service.handlePasswordChange(email, newPassword);
   res.send(response.responseBody());
 });
 
-userRouter.post('/update-profile', verifyToken, async (req, res) => {
-  //Test data
-  const data = {
-    fullName: "Tran Minh Anh",
-    email: "tranminhanh1912@gmail.com",
-  }
+userRouter.patch('/change-password', verifyToken, async (req, res) => {
+  const { email, currentPassword, newPassword } = req.body;
+  const response = await service.handlePasswordChange(email, currentPassword, newPassword);
+  res.send(response.responseBody());
+});
+
+userRouter.patch('/update-profile', verifyToken, async (req, res) => {
+  const data = req.body;
   const response = await service.updateProfile(data);
   res.send(response.responseBody());
 });
@@ -69,6 +70,16 @@ userRouter.post('/update-profile', verifyToken, async (req, res) => {
 userRouter.get('/list', async (req, res) => {
   const response = await service.getAllUsers();
   res.send(response.responseBody());
+});
+
+userRouter.post('/signin', async (req, res) => {
+  const data = req.body;
+  const response = await service.signIn(data);
+  if (response instanceof SuccessResponse) {
+    res.set('Authorization', `Bearer ${response.payload.metadata.accessToken}`);
+  }
+ 
+  res.send(response.responseBody())
 });
 
 module.exports = { userRouter };

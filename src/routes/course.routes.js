@@ -34,7 +34,6 @@ courseRouter.get('/', async (req, res) => {
 
 // Route: /view-list-courses?keyword=${keyword}&p=${1}&rating=${rating}
 // Route: /view-list-courses?category=${category}&p=${1}&rating=${rating}
-
 courseRouter.get('/search-courses-ratings', async (req, res) => {
   const keyword = req.query.keyword || "";
   const category = req.query.category || "";
@@ -55,11 +54,37 @@ courseRouter.post('/create-one-course', verifyToken, uploads.single('imageFile')
 
 courseRouter.post('/list-course', verifyToken, async (req, res) => {
   const data = req.body;
-  // console.log(data);
   const response = await service.getAllCoursesByUserId(data.instructorId);
-
   res.send(response.responseBody());
 });
+
+courseRouter.get('/get-course', verifyToken, async (req, res) => {
+  const data = req.query.courseId.toObjectId();
+  const response = await service.getCourseById(data);
+  res.send(response.responseBody());
+});
+
+courseRouter.get('/get-user-courses', verifyToken, async (req, res) => {
+  const data = req.query;
+  if (data.courses === undefined) {
+    return res.send({message: 'Please provide courses'});
+  }
+  const courses = data.courses.courses.map(course => course.toObjectId())
+  const response = await service.getUserCourses(courses);
+  console.log(response.responseBody());
+  res.send(response.responseBody());
+});
+
+courseRouter.get('/get-cart-courses', verifyToken, async (req, res) => {
+  const { courses } = req.query;
+  if (courses === undefined || courses.length === 0) {
+    return res.send({message: 'Please provide courses'});
+  }
+  const courseData = courses.map(course => course.toObjectId())
+  const response = await service.getUserCourses(courseData);
+  res.send(response.responseBody());
+});
+  
 
 courseRouter.post('/search', verifyToken, async (req, res) => {
   const data = req.body;
@@ -100,5 +125,14 @@ courseRouter.post("/get-course-detail", verifyToken, async (req, res) => {
 
   res.send(response.responseBody());
 });
+
+// API for getting course detail by course id
+courseRouter.get("/:id", async (req, res) => {
+  const courseId = req.params.id;
+  const response = await service.getCourseById(courseId);
+
+  res.send(response.responseBody());
+});
+
 
 module.exports = { courseRouter };
