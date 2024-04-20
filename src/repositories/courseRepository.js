@@ -47,6 +47,9 @@ module.exports = class CourseRepository{
     }
 
     async getCoursePagination(pageNumber,PAGE_SIZE=3, query = {}){
+        query = {
+          ...query,
+          publish: true}
         return paginate(this.model,pageNumber, PAGE_SIZE, query);
     }
     
@@ -93,6 +96,16 @@ module.exports = class CourseRepository{
       async update(filter, entity) {
         try {
           const course = await this.model.findOneAndUpdate(filter, entity);
+          return course;
+        } catch (error) {
+          console.error(error);
+          return null;
+        }
+      }
+
+      async updateOne(filter,update){
+        try {
+          const course = await this.model.updateOne(filter, update);
           return course;
         } catch (error) {
           console.error(error);

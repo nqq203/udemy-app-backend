@@ -3,7 +3,7 @@ const CourseService = require('../services/courseService');
 const service = new CourseService();
 const courseRouter = express.Router();
 
-const { verifyToken, checkRoles } = require('../middlewares/authorization');
+const { verifyToken, checkRoles,checkCourseAccess } = require('../middlewares/authorization');
 const asyncHandler = require('../middlewares/asyncHandler');
 const { USER_ROLE } = require('../constants/user.constants');
 const { uploads } = require('../utils/cloudinary');
@@ -19,7 +19,7 @@ courseRouter.get('/ratings', async (req, res) => {
   res.send(response.responseBody());
 });
 
-courseRouter.get('/course-learning', verifyToken, checkRoles([USER_ROLE.LEARNER]), async (req, res) => {
+courseRouter.get('/course-learning', verifyToken,checkCourseAccess, async (req, res) => {
   const id = req.query.courseId;
   const response = await service.getCourseById(id);
   res.send(response.responseBody());
@@ -32,11 +32,15 @@ courseRouter.get('/', async (req, res) => {
   res.send(response.responseBody());
 })
 
+// Route: /view-list-courses?keyword=${keyword}&p=${1}&rating=${rating}
+// Route: /view-list-courses?category=${category}&p=${1}&rating=${rating}
+
 courseRouter.get('/search-courses-ratings', async (req, res) => {
-  const keyword = req.query.keyword || ""
+  const keyword = req.query.keyword || "";
+  const category = req.query.category || "";
   const pageNumber = req.query.p || 1;
   const filterRating = req.query.rating || 0;
-  const response = await service.getCoursesBySearch(keyword, pageNumber, filterRating);
+  const response = await service.getCoursesBySearch(category,keyword, pageNumber, filterRating);
 
   res.send(response.responseBody());
 })

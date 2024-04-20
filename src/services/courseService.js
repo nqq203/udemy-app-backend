@@ -179,59 +179,80 @@ module.exports = class CourseService {
         }
     }
 
-    async getCoursesBySearch(keyword,pageNumber,rating=0){
-        try {
-            const PAGE_SIZE=10
-            if (!keyword) {
-              return new BadRequest("Keywords id are required");
-            }
+  async getCoursesBySearch(category,keyword,pageNumber,rating=0){
+      try {
+          const PAGE_SIZE=10
+          // console.log(keyword);
+          // if (!keyword) {
+          //   return new BadRequest("Keywords id are required");
+          // }
 
-            const regex = new RegExp(keyword, 'i');
-            var query;
+          var query;
+
+          if(keyword != ""){
+            // search by keyword
+            var regex;
+            regex = new RegExp(keyword, 'i');
             if(rating == 0){
-                // no filter rating
-                query = { name: { $regex: regex } }
+              // no filter rating
+              query = { name: { $regex: regex } }
             } else{
-                // filter rating
-                query = { 
-                    name: { $regex: regex } , 
-                    $or: [{"ratings": rating},{"ratings": { $gt: rating}}]
-                };
+              // filter rating
+              query = { 
+                  name: { $regex: regex } , 
+                  $or: [{"ratings": rating},{"ratings": { $gt: rating}}]
+              };
             }
-            
-            const data = await this.courseRepo.getCoursePagination(pageNumber,PAGE_SIZE,query)
+          } else if(category != ""){
+            category = category.toUpperCase();
 
-            if (!data) {
-              return new NotFoundResponse("No data to show");
+            // search by category
+            if(rating == 0){
+              // no filter rating
+              query = { "category": category }
+            } else{
+              // filter rating
+              query = { 
+                  category: category , 
+                  $or: [{"ratings": rating},{"ratings": { $gt: rating}}]
+              };
             }
-            
-            var instructors = []
-            var durationList = []
-            await Promise.all(data?.results.map(async (course) => {
-                const _id = course.instructorId;
-                const instructor = await this.userRepo.getByEntity(_id);
-                instructors.push(instructor.fullName);
+          }
+                    
+          const data = await this.courseRepo.getCoursePagination(pageNumber,PAGE_SIZE,query)
+
+          if (!data) {
+            return new NotFoundResponse("No data to show");
+          }
+          
+          var instructors = []
+          var durationList = []
+          await Promise.all(data?.results.map(async (course) => {
+              const _id = course.instructorId;
+              const instructor = await this.userRepo.getByEntity(_id);
+              instructors.push(instructor.fullName);
 
 
-                let courseId = course._id
-                let courseDuration = 0
-                const sections = await this.sectionRepo.getAllByEntity({courseId});
-                await Promise.all(sections.map(async section => {
-                    let sectionId = section._id
-                    let duration = await this.lectureRepo.getSectionDuration({sectionId});
-                    courseDuration += duration
-                }))
-                durationList.push(courseDuration)                
-            }));
-            data.instructors = instructors
-            data.durationList = durationList
-            
-            return new SuccessResponse({message: "Course(s) found",metadata: data});
-        } catch (error) {
-            console.log(error);
-            return new InternalServerError();
-        }
-    }
+              let courseId = course._id
+              let courseDuration = 0
+              const sections = await this.sectionRepo.getAllByEntity({courseId});
+              await Promise.all(sections.map(async section => {
+                  let sectionId = section._id
+                  let duration = await this.lectureRepo.getSectionDuration({sectionId});
+                  courseDuration += duration
+              }))
+              durationList.push(courseDuration)                
+          }));
+          data.instructors = instructors
+          data.durationList = durationList
+          // console.log(data)
+          
+          return new SuccessResponse({message: "Course(s) found",metadata: data});
+      } catch (error) {
+          console.log(error);
+          return new InternalServerError();
+      }
+  }
 
   async createCourse(data, imageFile) {
     try {
