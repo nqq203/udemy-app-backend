@@ -26,6 +26,30 @@ module.exports = class ReviewRepository{
         }
     }
 
+    async update(filter, entity) {
+        try {
+          const review = await this.model.findOneAndUpdate(filter, entity);
+          return review;
+        } catch (error) {
+          console.error(error);
+          return null;
+        }
+    }
+
+    async getByUserAndCourseId(courseId,userId){
+        try {
+            console.log(courseId)
+          const review = await this.model.findOne({
+            courseId: courseId,
+            userId: userId,
+          })
+          return review;
+        } catch (error) {
+            console.error(error);
+            return null;
+        }
+    }
+
     async getAllByEntity(entity){
         try {
             const review = await this.model.find(entity);
