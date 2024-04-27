@@ -1,8 +1,9 @@
 const express = require("express");
-
 const ReviewService = require("../services/reviewService");
 const service = new ReviewService();
 const reviewRouter = express.Router();
+const { verifyToken } = require("../middlewares/authorization");
+
 
 // update?ci=661f3da7f99f882605188c82&ui=6600feb4be517cbbf9172379
 reviewRouter.get("/update", async (req, res) => {
@@ -13,11 +14,17 @@ reviewRouter.get("/update", async (req, res) => {
   res.send(response.responseBody());
 });
 
-reviewRouter.put('/update',async (req,res) => {
+reviewRouter.get("/reviews-instructor", async(req,res) => {
+  const { courseId,ratings,pageNumber,sort} = req.query;
+  const response = await service.getReviewsPagination(courseId,ratings,pageNumber,sort);
+  res.send(response.responseBody())
+});
+
+reviewRouter.put('/update',verifyToken,async (req,res) => {
   const reviewData = req.body.updatedReview;
   const response = await service.updateReview(reviewData);
   res.send(response.responseBody());
-})
+});
 
 reviewRouter.get("/:courseId", async (req, res) => {
   const id = req.params.courseId;
@@ -25,11 +32,11 @@ reviewRouter.get("/:courseId", async (req, res) => {
   res.send(response.responseBody());
 });
 
-reviewRouter.post("/create-review", async (req,res) => {
+reviewRouter.post("/create-review",verifyToken, async (req,res) => {
   const review = req.body.review;
   const response = await service.createReview(review);
   res.send(response.responseBody());
-})
+});
 
 
 

@@ -1,4 +1,6 @@
 const Review = require('../models/reviews');
+const {paginate} = require('../utils/pagination');
+
 
 module.exports = class ReviewRepository{
     constructor(){
@@ -20,6 +22,31 @@ module.exports = class ReviewRepository{
         try {
             const reviews = await this.model.find({courseId});
             return reviews;
+        } catch (error) {
+            console.error(error);
+            return null;
+        }
+    }
+
+    async getReviewsPagination(pageNumber,PAGE_SIZE=10, query = {},sort){
+        try {
+            const skip = (pageNumber - 1) * PAGE_SIZE;
+            const totalDocs = await this.model.countDocuments(query);
+            const totalPages = Math.ceil(totalDocs / PAGE_SIZE);
+    
+            var results;
+            const sortType = parseInt(sort) || 0;
+            if(sortType === 1){
+                results = await this.model.find(query).skip(skip).limit(PAGE_SIZE).sort({createdAt: 1,});
+            } else if(sortType === -1){
+                results = await this.model.find(query).skip(skip).limit(PAGE_SIZE).sort({createdAt: -1,});
+            } else{
+                results = await this.model.find(query).skip(skip).limit(PAGE_SIZE);
+            }
+    
+            const pageSize = results.length || 0;
+    
+            return { results, page: pageNumber, pageSize: pageSize, totalPages, totalDocs };            
         } catch (error) {
             console.error(error);
             return null;

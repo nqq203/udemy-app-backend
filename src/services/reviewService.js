@@ -27,6 +27,7 @@ module.exports = class ReviewService {
       if (!reviews) {
         return new NotFoundResponse("Review not found");
       }
+
       var users = []
       for (let i = 0; i < reviews.length; i++) {
         const _id = reviews[i]?.userId;
@@ -57,8 +58,44 @@ module.exports = class ReviewService {
     }
   }
 
-  async getReviewsPagination(courseId){
+  async getReviewsPagination(courseId,ratings,pageNumber,sort){
+    try {
+      const review = await this.repository.getReviewsByCourseId(courseId);
+      if (!review) {
+        return new NotFoundResponse("Review not found");
+      }
 
+      var query;
+      const PAGE_SIZE=10
+      if(ratings > 0){
+        query = {
+          courseId : courseId,
+          rating: ratings,
+        }
+      } else{
+        query = {
+          courseId: courseId,
+        }
+      }
+
+      const data = await this.repository.getReviewsPagination(pageNumber,PAGE_SIZE,query,sort);
+      if (!data) {
+        return new NotFoundResponse("No data to show");
+      }
+      var users = []
+      for (let i = 0; i < data?.results?.length; i++) {
+        const _id = data?.results[i]?.userId;
+        const user = await this.userRepo.getByEntity({ _id });
+        users.push(user.fullName)
+      }
+      data.users = users
+
+
+      return new SuccessResponse({message: "Course(s) found",metadata: data});
+    } catch (error) {
+      console.log(error);
+      return new InternalServerError();
+    }
   }
 
   async createReview(data){

@@ -105,11 +105,12 @@ module.exports = class CourseService {
       }
 
       var instructors = []
-      await Promise.all(courses?.results.map(async (course) => {
-        const _id = course.instructorId;
+      for(var i = 0; i < courses?.results.length; i++){
+        const _id = courses?.results[i].instructorId;
         const instructor = await this.userRepo.getByEntity(_id);
         instructors.push(instructor.fullName);
-      }));
+      }
+
       courses.instructors = instructors
 
       return new SuccessResponse({ message: "Courses pagination found", metadata: courses });
@@ -207,27 +208,27 @@ module.exports = class CourseService {
         }
     }
 
-    async getCoursePagination(pageNumber,PAGE_SIZE=3, query = {}){
-        try {
-            const courses = await this.courseRepo.getCoursePagination(pageNumber,PAGE_SIZE, query);
-            if(!courses || courses.length == 0){
-                return new NotFoundResponse("Courses pagination not found")
-            }
+    // async getCoursePagination(pageNumber,PAGE_SIZE=3, query = {}){
+    //     try {
+    //         const courses = await this.courseRepo.getCoursePagination(pageNumber,PAGE_SIZE, query);
+    //         if(!courses || courses.length == 0){
+    //             return new NotFoundResponse("Courses pagination not found")
+    //         }
             
-            var instructors = []
-            await Promise.all(courses?.results.map(async (course) => {
-                const _id = course.instructorId;
-                const instructor = await this.userRepo.getByEntity(_id);
-                instructors.push(instructor.fullName);
-            }));
-            courses.instructors = instructors
+    //         var instructors = []
+    //         await Promise.all(courses?.results.map(async (course) => {
+    //             const _id = course.instructorId;
+    //             const instructor = await this.userRepo.getByEntity(_id);
+    //             instructors.push(instructor.fullName);
+    //         }));
+    //         courses.instructors = instructors
 
-            return new SuccessResponse({message: "Courses pagination found",metadata: courses});
-        } catch (error) {
-            console.log(error);
-            return new InternalServerError();
-        }
-    }
+    //         return new SuccessResponse({message: "Courses pagination found",metadata: courses});
+    //     } catch (error) {
+    //         console.log(error);
+    //         return new InternalServerError();
+    //     }
+    // }
 
   async getCoursesBySearch(category,keyword,pageNumber,rating=0){
       try {
@@ -277,7 +278,8 @@ module.exports = class CourseService {
           
           var instructors = []
           var durationList = []
-          await Promise.all(data?.results.map(async (course) => {
+          for(var i = 0;i < data?.results.length; i++ ){
+              const course = data?.results[i]
               const _id = course.instructorId;
               const instructor = await this.userRepo.getByEntity(_id);
               instructors.push(instructor.fullName);
@@ -292,7 +294,7 @@ module.exports = class CourseService {
                   courseDuration += duration
               }))
               durationList.push(courseDuration)                
-          }));
+          };
           data.instructors = instructors
           data.durationList = durationList
           // console.log(data)
