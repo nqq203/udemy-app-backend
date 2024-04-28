@@ -24,6 +24,23 @@ module.exports = class OrderService {
         return new BadRequest("Missed information");
       }
 
+      const allOrders = await this.repository.getByEntity({ userId });
+      var isPurchasedCourse = false;
+      allOrders.forEach((order) => {
+        order.items.forEach((item) => {
+          items.forEach((newItem) => {
+            if (item.itemId.toString() === newItem.itemId.toString()) {
+              isPurchasedCourse = true;
+              return;
+            }
+          });
+        });
+      });
+      
+      if(isPurchasedCourse) {
+        return new BadRequest("You already purchased this course");
+      }
+
       const order = await this.repository.create({
         userId: userId,
         items: items,
