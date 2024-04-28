@@ -7,6 +7,7 @@ const { verifyToken, checkRoles,checkCourseAccess } = require('../middlewares/au
 const asyncHandler = require('../middlewares/asyncHandler');
 const { USER_ROLE } = require('../constants/user.constants');
 const { uploads } = require('../utils/cloudinary');
+const courses = require('../models/courses');
 
 courseRouter.get('/list', async (req, res) => {
   const response = await service.getAllCourses();
@@ -127,12 +128,21 @@ courseRouter.post("/get-course-detail", verifyToken, async (req, res) => {
 });
 
 // API for getting course detail by course id
+courseRouter.get("/get-related-courses", async (req, res) => {
+  const courseId = req.query.courseId;
+  console.log(courseId)
+const response = await service.getRelatedCourses(courseId);
+  
+  res.send(response.responseBody());
+});
+
 courseRouter.get("/:id", async (req, res) => {
   const courseId = req.params.id;
   const response = await service.getCourseById(courseId);
 
   res.send(response.responseBody());
 });
+
 
 
 module.exports = { courseRouter };

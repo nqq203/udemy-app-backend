@@ -515,4 +515,22 @@ module.exports = class CourseService {
     }
   }
 
+  async getRelatedCourses(courseId) {
+    try {
+      const courses = await this.courseRepo.getRelatedCourses(courseId);
+      if (courses.length === 0) {
+        return new NotFoundResponse("No related courses found");
+      }
+      else {
+        return new SuccessResponse({
+          message: "Related courses found",
+          metadata: courses
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      return new InternalServerError();
+    }
+  }
+
 }
