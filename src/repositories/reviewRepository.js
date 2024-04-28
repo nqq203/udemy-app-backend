@@ -36,10 +36,10 @@ module.exports = class ReviewRepository{
     
             var results;
             const sortType = parseInt(sort) || 0;
-            if(sortType === 1){
-                results = await this.model.find(query).skip(skip).limit(PAGE_SIZE).sort({createdAt: 1,});
-            } else if(sortType === -1){
-                results = await this.model.find(query).skip(skip).limit(PAGE_SIZE).sort({createdAt: -1,});
+            if(sortType === 1){ //Oldest first
+                results = await this.model.find(query).sort({createdAt: 1,}).skip(skip).limit(PAGE_SIZE);
+            } else if(sortType === -1){ // Newest first
+                results = await this.model.find(query).sort({createdAt: -1,}).skip(skip).limit(PAGE_SIZE);
             } else{
                 results = await this.model.find(query).skip(skip).limit(PAGE_SIZE);
             }
