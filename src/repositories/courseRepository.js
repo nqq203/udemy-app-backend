@@ -98,9 +98,9 @@ module.exports = class CourseRepository {
     try {
       const course = await this.model.find({ _id: courseid });
       const relatedCourses = await this.model.find({
-        category: course[0].category
+        category: course[0].category,
+        _id: { $ne: courseid },
       });
-      console.log(relatedCourses)
       return relatedCourses;
     } catch (error) {
       console.error(error);
