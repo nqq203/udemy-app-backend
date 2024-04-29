@@ -139,4 +139,23 @@ userRouter.get('/activate-account/:activationToken', async (req, res) => {
   }
 });
 
+userRouter.post('/forgot-password', async (req, res) => {
+  const data = req.body;
+  const response = await service.forgotPassword(data.email);
+  res.send(response.responseBody());
+});
+
+userRouter.get('/check-token/:token', async (req, res) => {
+  const { token } = req.params;
+  const response = await service.checkToken(token);
+  res.send(response.responseBody());
+});
+userRouter.put('/reset-password/:token', async (req, res) => {
+  const data = req.body;
+  const { password} = data;
+  const { token } = req.params;
+  const response = await service.resetPassword(token, password);
+  res.send(response.responseBody());
+});
+
 module.exports = { userRouter };

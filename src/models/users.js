@@ -26,7 +26,9 @@ const Schema = new mongoose.Schema(
     },
     activationToken: {type: String, unique: true},
     activationTokenExpires: {type: Date },
-    isActivated: {type: Boolean, default: false}
+    isActivated: {type: Boolean, default: false},
+    resetToken: {type: String, unique: true},
+    resetTokenExpires: {type: Date }
   },
   {
     collection: "users",

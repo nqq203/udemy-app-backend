@@ -316,4 +316,125 @@ module.exports = class UserService {
       return new InternalServerError();
     }
   }
+
+  async forgotPassword(email) {
+    try {
+      const user = await this.repository.getByEntity({ email: email });
+      if (!user) {
+        return new NotFoundResponse("Couldn't find user");
+      }
+      const resetToken = crypto.randomBytes(20).toString('hex');
+      const resetTokenExpires = moment().add(1, 'hour');
+      const resetPassword = await this.repository.update({ _id: user._id }, {
+        resetToken: resetToken,
+        resetTokenExpires: resetTokenExpires
+      });
+
+      if (!resetPassword) {
+        return new InternalServerError();
+      }
+
+      const transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_APP_PASSWORD,
+        },
+        tls: {
+          rejectUnauthorized: false,
+        },
+      });
+      const url = `${process.env.URL_FE}/reset-password/` + resetToken;
+      console.log(url);
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: 'Reset password',
+        text: 'Hello ' + user.fullName + ',\n\n' +
+          'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
+          'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
+          `${url}\n\n` +
+          'If you did not request this, please ignore this email and your password will remain unchanged.\n'
+      };
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          return new InternalServerError();
+        }
+      });
+
+      return new SuccessResponse(
+        {
+          success: true,
+          message: "Reset password link has been sent to your email"
+        }
+      )
+    }
+    catch(error) {
+      console.log(error);
+      return new InternalServerError();
+    }
+  }
+
+  async resetPassword(token, password) {
+    try {
+      if (!token || !password) {
+        return new BadRequestResponse("Missed information");
+      }
+      const user = await this.repository.getByEntity({ resetToken: token });
+      if (!user) {
+        return new NotFoundResponse("Couldn't find user");
+      }
+
+      if (moment().isAfter(user.resetTokenExpires)) {
+        return new BadRequestResponse("Reset password link has expired");
+      }
+  
+      const hashedPassword = await bcrypt.hash(password, 10);
+      user.password = hashedPassword;
+      user.resetToken = undefined;
+      user.resetTokenExpires = undefined;
+      const resetPassword = await this.repository.update({ _id: user._id }, {
+        ...user
+      });
+
+      if (!resetPassword) {
+        return new InternalServerError();
+      }
+
+      return new SuccessResponse(
+        {
+          success: true,
+          message: "Your password has been reset"
+        }
+      )
+    }
+    catch(error) {
+      console.log(error);
+      return new InternalServerError();
+    }
+  }
+
+  async checkToken(token) {
+    try {
+      const user = await this.repository.getByEntity({ resetToken: token });
+      if (!user) {
+        return new NotFoundResponse("Couldn't find user");
+      }
+      if (moment().isAfter(user.resetTokenExpires)) {
+        return new BadRequestResponse("Reset password link has expired");
+      }
+      return new SuccessResponse(
+        {
+          success: true,
+          message: "Valid token"
+        }
+      )
+    }
+    catch(error) {
+
+      return new InternalServerError();
+    }
+  }
 };
