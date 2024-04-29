@@ -31,6 +31,7 @@ module.exports = class UserService {
       return null;
     }
   }
+
   async getCart(userId) {
     try {
       const carts = await this.repository.getAll(userId);
@@ -48,6 +49,7 @@ module.exports = class UserService {
           itemCartList.push(itemCart);
         })
       );
+      
       return new SuccessResponse({
         message: 'Cart found',
         metadata: itemCartList,
@@ -73,4 +75,37 @@ module.exports = class UserService {
       return null;
     }
   }
+
+  //Testing Service
+  async getAllCart(userId) {
+    try {
+      const carts = await this.repository.getAll(userId);
+      if (!carts) {
+        return new NotFoundResponse('Cart not found');
+      }
+
+      return new SuccessResponse({
+        message: 'Cart found',
+        metadata: carts,
+      });
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
+
+  async deleteAllCart(userId) {
+    try {
+      const deletedCart = await this.repository.deleteAll({ userId });
+      return new SuccessResponse({
+        message: 'Cart deleted',
+        metadata: deletedCart,
+      });
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
 };
+
+

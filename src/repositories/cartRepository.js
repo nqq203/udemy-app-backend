@@ -36,4 +36,14 @@ module.exports = class CartRepository{
       return null;
     }
   }
+
+  async deleteAll(entity) {
+    try {
+      const deletedCart = await this.model.deleteMany(entity);
+      return deletedCart;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
 }
