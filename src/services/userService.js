@@ -207,6 +207,8 @@ module.exports = class UserService {
     if(!user){
       return new NotFoundResponse("User not found");
     }
+    user.isActivated = true;
+    await this.repository.update({email}, { ...user });
     const expiredTime = moment().subtract(1, 'hour');
     const currentSession = await this.sessionRepository.getByEntity({userId: user._id, status: sessionConstant.STATUS_TOKEN.ACTIVE, expiredAt: {$gte: expiredTime}});
     if (currentSession){
