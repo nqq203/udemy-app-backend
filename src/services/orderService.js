@@ -19,8 +19,8 @@ module.exports = class OrderService {
 
   async createOrder(data) {
     try {
-      const { userId, items, country, price, paymentMethod } = data;
-      if (!userId || !items || !country || !price || !paymentMethod) {
+      const { userId, items, price, paymentId } = data;
+      if (!userId || !items || !price ) {
         return new BadRequest("Missed information");
       }
 
@@ -44,10 +44,9 @@ module.exports = class OrderService {
       const order = await this.repository.create({
         userId: userId,
         items: items,
-        country: country,
         price: price,
-        status: ORDER_STATUS.PENDING,
-        paymentMethod: paymentMethod === "paypal" ? PAYMENT_METHOD.WALLET : PAYMENT_METHOD.CREDIT_CARD,
+        status: paymentId ? ORDER_STATUS.COMPLETED : ORDER_STATUS.PENDING,
+        paymentId: paymentId || "",
       });
 
       if (!order) {

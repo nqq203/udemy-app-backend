@@ -25,8 +25,6 @@ const verifyToken = async (req, res, next) => {
     if (!token) {
       return res.send(new AuthFailureResponse("Invalid token").responseBody());
     }
-    console.log(token);
-    
     let verified;
     try {      
       const {sessionId, userId} = jwt.verify(token, process.env.JWT_SECRET_KEY)
