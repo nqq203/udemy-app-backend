@@ -8,10 +8,10 @@ const bodyParser = require("body-parser");
 const db = require("./configs/db");
 const app = express();
 const routes = require('./routes/index');
-const passport = require('./configs/passport.config');
 const port = 8080;
 require('dotenv').config();
 db.connectDB();
+const passport = require('./configs/passport.config');
 
 app.use(
   cors({
