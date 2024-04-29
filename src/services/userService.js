@@ -6,6 +6,7 @@ const moment = require("moment");
 // const { ObjectId } = mongoose.Schema;
 const UserRepository = require("../repositories/userRepository");
 const SessionRepository = require("../repositories/sessionRepository");
+const Upload = require('../utils/upload');
 const {
   ConflictResponse,
   BadRequest,
@@ -111,23 +112,36 @@ module.exports = class UserService {
     }
   }
 
-  // async changeAvatar(email, imageFile) {
-  //   try {
-  //     console.log(email, imageFile);
-  //     const avatar = await uploadFileToCloud(imageFile);
-  //     const user = await this.repository.update(
-  //       { email: email }, 
-  //       { avatar: avatar }
-  //     );
-  //     return new SuccessResponse({
-  //       message: "Avatar updated successfully",
-  //       metadata: user,
-  //     });
-  //   } catch (error) {
-  //     console.log(error);
-  //     return new InternalServerError();
-  //   }
-  // }
+  async updateAvatar(email, imageFile) {
+    try {
+      if (!imageFile || !email) {
+        return new BadRequest("Missed information");
+      }
+      const uploadedResponse = await Upload.uploadFile(imageFile).catch((error) => {});
+        const avatar = uploadedResponse.secure_url;
+        if (uploadedResponse.secure_url) {
+          console.log(avatar, email);
+          const user = await this.repository.update(
+            { email: email }, 
+            { avatar: avatar }
+          );
+            if (!user) {
+                return new BadRequest('Update avatar failed');
+            }
+            return new SuccessResponse({
+              success: true,
+              message: "Avatar updated successfully",
+              metadata: user,
+            });
+        } else {
+            throw new BadRequest('Image is wrong');
+        }
+    } catch (error) {
+      console.log(error);
+      return new InternalServerError();
+    }
+  }
+  
 
   async handlePasswordChange(email, currentPassword, newPassword) {
     try {

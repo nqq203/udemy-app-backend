@@ -5,6 +5,7 @@ const { verifyToken, checkRoles } = require('../middlewares/authorization');
 const asyncHandler = require('../middlewares/asyncHandler');
 const userRouter = express.Router();
 const passport = require('../configs/passport.config');
+const { uploads } = require('../utils/cloudinary');
 const {
   CreatedResponse,
   SuccessResponse,
@@ -80,6 +81,15 @@ userRouter.patch('/update-profile', verifyToken, async (req, res) => {
   const response = await service.updateProfile(data);
   res.send(response.responseBody());
 });
+
+userRouter.put('/change-avatar', verifyToken,uploads.single('image'), async (req, res) => {
+  const imageFile = req?.file?.path;
+  const {email} = req.body;
+  console.log(imageFile, email)
+  const response = await service.updateAvatar(email, imageFile);
+  console.log(response.responseBody())
+  res.send(response.responseBody());
+})
 
 userRouter.get('/list', async (req, res) => {
   const response = await service.getAllUsers();

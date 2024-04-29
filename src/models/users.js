@@ -9,6 +9,7 @@ const Schema = new mongoose.Schema(
       type: String,
       minLength: 8,
     },
+    avatar: { type: String },
     wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: "courses" }],
     biography: { type: String },
     website: { type: String },
