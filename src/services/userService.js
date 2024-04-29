@@ -84,6 +84,24 @@ module.exports = class UserService {
     }
   }
 
+  // async changeAvatar(email, imageFile) {
+  //   try {
+  //     console.log(email, imageFile);
+  //     const avatar = await uploadFileToCloud(imageFile);
+  //     const user = await this.repository.update(
+  //       { email: email }, 
+  //       { avatar: avatar }
+  //     );
+  //     return new SuccessResponse({
+  //       message: "Avatar updated successfully",
+  //       metadata: user,
+  //     });
+  //   } catch (error) {
+  //     console.log(error);
+  //     return new InternalServerError();
+  //   }
+  // }
+
   async handlePasswordChange(email, currentPassword, newPassword) {
     try {
       const userExists = await this.repository.getByEntity({ email });
