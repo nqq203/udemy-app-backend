@@ -12,7 +12,7 @@ class ErrorResponse extends Error {
         this.errors = errors;
     }
     responseBody() {
-        console.log(this);
+        // console.log(this);
         return {
           success: this.success,
           code: this.code,

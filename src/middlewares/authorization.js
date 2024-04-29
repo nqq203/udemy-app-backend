@@ -50,7 +50,7 @@ const verifyToken = async (req, res, next) => {
       if (!user) {
         return res.send(new AuthFailureResponse("Invalid token").responseBody());
       }
-      req.session = session;
+      // req.session = session;
       req.user = user;
 
       next();
@@ -60,7 +60,6 @@ const verifyToken = async (req, res, next) => {
     }
 
   } catch (err) {
-    console.log(err);
     res.send(new InternalServerError('Internal server error'));
   }
 };

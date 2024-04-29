@@ -1,5 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
+const nodemailer = require('nodemailer');
 const moment = require("moment");
 // const { ObjectId } = mongoose.Schema;
 const UserRepository = require("../repositories/userRepository");
@@ -34,21 +36,46 @@ module.exports = class UserService {
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
+      const activationToken = crypto.randomBytes(20).toString('hex');
+
       const user = await this.repository.create({
         fullName: fullname,
         email,
         password: hashedPassword,
+        activationToken,
+        activationTokenExpires: Date.now() + 3600000 // 1 giờ từ bây giờ
       });
 
       if (!user) {
         return new BadRequest("Create user failed");
       }
+
+      // Cấu hình NodeMailer
+      let transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_USERNAME,
+          pass: process.env.EMAIL_PASSWORD
+        }
+      });
+
+      // Nội dung email
+      const mailOptions = {
+        from: process.env.EMAIL_USERNAME,
+        to: user.email,
+        subject: 'Account Activation',
+        html: `<p>Please click on the following link to activate your account:</p>
+               <a href="http://localhost:3030/activate-account/${activationToken}">Activate Account</a>`
+      };
+
+      // Gửi email
+      await transporter.sendMail(mailOptions);
+
       return new CreatedResponse({
-        message: "Create user successfully",
-        metadata: user,
+        message: "Please confirm to activate your account",
       });
     } catch (err) {
-      console.log(err);
+      console.log(err); 
       return new InternalServerError();
     }
   }
@@ -148,6 +175,9 @@ module.exports = class UserService {
     if(!user){
       return new NotFoundResponse("User not found");
     }
+    if (!user.isActivated) {
+      return new BadRequest("Your account isn't activated");
+    }
     const isValidPassword = await bcrypt.compare(password, user.password);
     if(!isValidPassword){
       return new BadRequest("Invalid password");
@@ -170,7 +200,7 @@ module.exports = class UserService {
     return new SuccessResponse({message: "Login successfully", metadata: {userInfo: user, accessToken: token}});
   }
 
-  async signInWithGoogle(data) {
+  async signInWithOauth(data) {
     const { email } = data;
 
     const user = await this.repository.getByEntity({email});
@@ -241,8 +271,8 @@ module.exports = class UserService {
   }
   //Update, Delete,...
 
-  async findOrCreateGoogleUser(profile) {
-    console.log(profile);
+  async findOrCreateOauthUser(profile) {
+    // console.log(profile);
     const email = profile.emails[0].value;
     let user = await this.repository.getByEntity({ email: email });
     if (user) {
@@ -253,9 +283,35 @@ module.exports = class UserService {
         fullName: profile.displayName,
         email: email,
         googleId: profile.id,
-        role: "LEARNER",
       }
-      return await this.repository.create(newUser);
+      const data = await this.repository.create(newUser);
+      return data;
+    }
+  }
+
+  async activateAccount(token) {
+    try {
+      const user = await this.repository.getByEntity({ activationToken: token });
+      if (!user) {
+        return new NotFoundResponse("Couldn't find user");
+      }
+
+      user.isActivated = true;
+      user.activationToken = undefined;
+      user.activationTokenExpires = undefined;
+      const confirmationUser = await this.repository.update({ _id: user._id }, {
+        ...user
+      });
+
+      return new SuccessResponse(
+        {
+          success: true,
+          message: "Your account has been activated"
+        }
+      )
+    }
+    catch(error) {
+      return new InternalServerError();
     }
   }
 };

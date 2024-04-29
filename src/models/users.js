@@ -23,7 +23,10 @@ const Schema = new mongoose.Schema(
     gender: {
       type: String,
       enum: Object.values(USER_GENDER),
-    }
+    },
+    activationToken: {type: String, unique: true},
+    activationTokenExpires: {type: Date },
+    isActivated: {type: Boolean, default: false}
   },
   {
     collection: "users",
