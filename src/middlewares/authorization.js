@@ -18,12 +18,10 @@ const verifyToken = async (req, res, next) => {
   try {
     // console.log(req.headers);
     const token = req.headers["authorization"]?.split(" ")[1];
-    // const tokenHead = req.headers["authorization"];
-    // console.log("hello: " + tokenHead);
-    
+   
 
     if (!token) {
-      return res.send(new AuthFailureResponse("Invalid token").responseBody());
+      return res.send(new AuthFailureResponse("Bạn cần phải đăng nhập").responseBody());
     }
     let verified;
     try {      
@@ -32,33 +30,32 @@ const verifyToken = async (req, res, next) => {
       const session = await Session.findById(sessionId);
       
       if (!session) {
-        return res.send(new AuthFailureResponse("Invalid token").responseBody());
+        return res.send(new AuthFailureResponse("Bạn cần phải đăng nhập").responseBody());
       }
       if (session && session.expiredAt < moment()) {
-        return res.send(new AuthFailureResponse("Invalid token").responseBody());
+        return res.send(new AuthFailureResponse("Bạn cần phải đăng nhập").responseBody());
       }
       if (session.status !== sessionConstant.STATUS_TOKEN.ACTIVE) {
-        return res.send(new AuthFailureResponse("Invalid token").responseBody());
+        return res.send(new AuthFailureResponse("Bạn cần phải đăng nhập").responseBody());
       }
       if (session && String(session.userId) !== userId) {
-        return res.send(new AuthFailureResponse("Invalid token").responseBody());
+        return res.send(new AuthFailureResponse("Bạn cần phải đăng nhập").responseBody());
       }
 
       const user = await User.findById(userId);
       if (!user) {
-        return res.send(new AuthFailureResponse("Invalid token").responseBody());
+        return res.send(new AuthFailureResponse("Bạn cần phải đăng nhập").responseBody());
       }
-      req.session = session;
+      // req.session = session;
       req.user = user;
 
       next();
     } catch (err) {
       console.log(err)
-      res.send(new AuthFailureResponse('Invalid token'));
+      res.send(new AuthFailureResponse("Bạn cần phải đăng nhập").responseBody());
     }
 
   } catch (err) {
-    console.log(err);
     res.send(new InternalServerError('Internal server error'));
   }
 };

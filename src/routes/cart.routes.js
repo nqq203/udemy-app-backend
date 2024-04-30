@@ -12,9 +12,19 @@ cartRouter.get("/", verifyToken, async (req, res) => {
 });
 
 cartRouter.post("/", verifyToken, async (req, res) => {
-  const { id = "" } = req.body;
+  const { courseId = "" } = req.body;
   const { user } = req;
-  const response = await service.createCart({ userId: user._id, itemId: id });
+  console.log("Cart: ", req)
+  const response = await service.createCart({ userId: user._id, itemId: courseId });
+  console.log(response.responseBody())
+  res.send(response.responseBody());
+});
+
+
+cartRouter.delete("/:itemId", verifyToken, async (req, res) => {
+  const { user } = req;
+  const { itemId = "" } = req.params;
+  const response = await service.deleteCart({userId: user._id, itemId});
   res.send(response.responseBody());
 });
 
