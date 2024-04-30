@@ -41,7 +41,7 @@ courseRouter.get(
 );
 
 courseRouter.get("/course-by-id", async (req, res) => {
-  const id = req.query.courseId.toObjectId();
+  const id = req.query.courseId?.toObjectId();
   const response = await service.getCourseByCId(id);
   res.send(response.responseBody());
 });
@@ -176,7 +176,6 @@ courseRouter.post("/get-course-detail", verifyToken, async (req, res) => {
 // API for getting course detail by course id
 courseRouter.get("/:id/related", async (req, res) => {
   const courseId = req.params.id;
-  console.log(courseId);
   const response = await service.getRelatedCourses(courseId);
 
   res.send(response.responseBody());
