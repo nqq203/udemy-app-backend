@@ -22,6 +22,8 @@ app.use(
 );
 
 app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: true }));
+
 
 // Configure express-session
 // app.use(session({

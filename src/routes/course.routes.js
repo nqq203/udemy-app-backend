@@ -178,4 +178,6 @@ courseRouter.get("/:id", async (req, res) => {
   res.send(response.responseBody());
 });
 
+
+
 module.exports = { courseRouter };

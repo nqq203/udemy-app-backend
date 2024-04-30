@@ -5,6 +5,7 @@ const {reviewRouter} = require('./review.routes');
 const {sectionRouter} = require('./section.routes');
 const {lectureRouter} = require('./lecture.routes');
 const { orderRouter } = require('./order.routes');
+const { noteRouter } = require('./note.routes');
 
 module.exports = {
   userRouter,
@@ -21,6 +22,7 @@ function route(app) {
   app.use('/review', reviewRouter);
   app.use('/courses', courseRouter);
   app.use('/sections', sectionRouter);
+  app.use('/notes', noteRouter);
 }
 
 module.exports = route;
