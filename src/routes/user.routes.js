@@ -4,6 +4,8 @@ const service = new UserService();
 const { verifyToken, checkRoles } = require('../middlewares/authorization');
 const asyncHandler = require('../middlewares/asyncHandler');
 const userRouter = express.Router();
+const passport = require('../configs/passport.config');
+const { uploads } = require('../utils/cloudinary');
 const {
   CreatedResponse,
   SuccessResponse,
@@ -34,15 +36,28 @@ userRouter.post('/signin', async (req, res) => {
 })
 
 userRouter.post('/logout', verifyToken, async (req, res) => {
-  const data = req.session;
-  console.log(req.session);
+  const data = req.body;
   const response = await service.signOut(data);
-  res.send(response.responseBody());
+  if (data.typeLogin !== 'normal') {
+    req.logout((err) => { // Thêm hàm callback vào đây
+      if (err) {
+        res.send({
+          success: true,
+          code: 500,
+          message: "Error logging out"
+        }); // Xử lý lỗi nếu có
+      }
+      res.send(response.responseBody());
+    });
+  }
+  else {
+    res.send(response.responseBody());
+  }
 });
 
 userRouter.get('/email', verifyToken, checkRoles(['LEARNER']), async (req, res) => {
   const { email = '' } = req.query;
-  if (!email) {
+  if (!email) { 
     return res.send(new BadRequest("Missed email").responseBody());
   } 
   const response = await service.getUserByEmail(email);
@@ -67,6 +82,15 @@ userRouter.patch('/update-profile', verifyToken, async (req, res) => {
   res.send(response.responseBody());
 });
 
+userRouter.put('/change-avatar', verifyToken,uploads.single('image'), async (req, res) => {
+  const imageFile = req?.file?.path;
+  const {email} = req.body;
+  console.log(imageFile, email)
+  const response = await service.updateAvatar(email, imageFile);
+  console.log(response.responseBody())
+  res.send(response.responseBody());
+})
+
 userRouter.get('/list', async (req, res) => {
   const response = await service.getAllUsers();
   res.send(response.responseBody());
@@ -80,6 +104,68 @@ userRouter.post('/signin', async (req, res) => {
   }
  
   res.send(response.responseBody())
+});
+
+userRouter.get('/google', 
+  passport.authenticate('google', { scope: ['profile', 'email']})
+);
+
+userRouter.get('/google/redirect', 
+  passport.authenticate('google', { failureRedirect: '/sign-in' }),
+  async (req, res) => {
+    const data = req.session.passport.user;
+    const response = await service.signInWithOauth(data);
+    const responseData = response.responseBody();
+    const userInfo = JSON.stringify(responseData.metadata.userInfo);
+    const accessToken = JSON.stringify(responseData.metadata.accessToken);
+    res.redirect(`http://localhost:3030/oauth2/?userInfo=${userInfo}&accessToken=${accessToken}`);
+  }
+);
+
+userRouter.get('/facebook', 
+  passport.authenticate('facebook', { scope: ['profile', 'email'] })
+);
+
+userRouter.get('/facebook/redirect',
+  passport.authenticate('facebook', { failureRedirect: '/sign-in'}),
+  async (req, res) => {
+    const data = req.session.passport.user;
+    const response = await service.signInWithOauth(data);
+    const responseData = response.responseBody();
+    const userInfo = JSON.stringify(responseData.metadata.userInfo);
+    const accessToken = JSON.stringify(responseData.metadata.accessToken);
+    res.redirect(`http://localhost:3030/oauth2/?userInfo=${userInfo}&accessToken=${accessToken}`);
+  }
+);
+
+userRouter.get('/activate-account/:activationToken', async (req, res) => {
+  const response = await service.activateAccount(req.params.activationToken);
+  console.log=(response);
+  if (response.success) {
+    res.redirect(`http://localhost:3030/sign-in`);
+  }
+  else {
+    res.send(response.responseBody());
+  }
+});
+
+userRouter.post('/forgot-password', async (req, res) => {
+  const data = req.body;
+  const response = await service.forgotPassword(data.email);
+  res.send(response.responseBody());
+});
+
+userRouter.get('/check-token/:token', async (req, res) => {
+  const { token } = req.params;
+  const response = await service.checkToken(token);
+  res.send(response.responseBody());
+});
+userRouter.put('/reset-password/:token', async (req, res) => {
+  const data = req.body;
+  const { password} = data;
+  const { token } = req.params;
+  const response = await service.resetPassword(token, password);
+  res.send(response.responseBody());
 });
 
 module.exports = { userRouter };

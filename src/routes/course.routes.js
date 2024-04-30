@@ -89,9 +89,9 @@ courseRouter.get("/get-user-courses", verifyToken, async (req, res) => {
   if (data.courses === undefined) {
     return res.send({ message: "Please provide courses" });
   }
-  const courses = data.courses.courses.map((course) => course.toObjectId());
-  const response = await service.getUserCourses(courses);
-  console.log(response.responseBody());
+  const courses = Object.values(data.courses.courses);
+  const courseData = courses.map((course) => course.toObjectId());
+  const response = await service.getUserCourses(courseData);
   res.send(response.responseBody());
 });
 

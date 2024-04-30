@@ -1,9 +1,12 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
+const nodemailer = require('nodemailer');
 const moment = require("moment");
 // const { ObjectId } = mongoose.Schema;
 const UserRepository = require("../repositories/userRepository");
 const SessionRepository = require("../repositories/sessionRepository");
+const Upload = require('../utils/upload');
 const {
   ConflictResponse,
   BadRequest,
@@ -34,21 +37,46 @@ module.exports = class UserService {
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
+      const activationToken = crypto.randomBytes(20).toString('hex');
+
       const user = await this.repository.create({
         fullName: fullname,
         email,
         password: hashedPassword,
+        activationToken,
+        activationTokenExpires: Date.now() + 3600000 // 1 giờ từ bây giờ
       });
 
       if (!user) {
         return new BadRequest("Create user failed");
       }
+
+      // Cấu hình NodeMailer
+      let transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_USERNAME,
+          pass: process.env.EMAIL_PASSWORD
+        }
+      });
+
+      // Nội dung email
+      const mailOptions = {
+        from: process.env.EMAIL_USERNAME,
+        to: user.email,
+        subject: 'Account Activation',
+        html: `<p>Please click on the following link to activate your account:</p>
+               <a href="http://localhost:3030/activate-account/${activationToken}">Activate Account</a>`
+      };
+
+      // Gửi email
+      await transporter.sendMail(mailOptions);
+
       return new CreatedResponse({
-        message: "Create user successfully",
-        metadata: user,
+        message: "Please confirm to activate your account",
       });
     } catch (err) {
-      console.log(err);
+      console.log(err); 
       return new InternalServerError();
     }
   }
@@ -83,6 +111,37 @@ module.exports = class UserService {
       return new InternalServerError();
     }
   }
+
+  async updateAvatar(email, imageFile) {
+    try {
+      if (!imageFile || !email) {
+        return new BadRequest("Missed information");
+      }
+      const uploadedResponse = await Upload.uploadFile(imageFile).catch((error) => {});
+        const avatar = uploadedResponse.secure_url;
+        if (uploadedResponse.secure_url) {
+          console.log(avatar, email);
+          const user = await this.repository.update(
+            { email: email }, 
+            { avatar: avatar }
+          );
+            if (!user) {
+                return new BadRequest('Update avatar failed');
+            }
+            return new SuccessResponse({
+              success: true,
+              message: "Avatar updated successfully",
+              metadata: user,
+            });
+        } else {
+            throw new BadRequest('Image is wrong');
+        }
+    } catch (error) {
+      console.log(error);
+      return new InternalServerError();
+    }
+  }
+  
 
   async handlePasswordChange(email, currentPassword, newPassword) {
     try {
@@ -130,6 +189,9 @@ module.exports = class UserService {
     if(!user){
       return new NotFoundResponse("User not found");
     }
+    if (!user.isActivated) {
+      return new BadRequest("Your account isn't activated");
+    }
     const isValidPassword = await bcrypt.compare(password, user.password);
     if(!isValidPassword){
       return new BadRequest("Invalid password");
@@ -152,13 +214,15 @@ module.exports = class UserService {
     return new SuccessResponse({message: "Login successfully", metadata: {userInfo: user, accessToken: token}});
   }
 
-  async signInWithGoogle(data) {
+  async signInWithOauth(data) {
     const { email } = data;
 
     const user = await this.repository.getByEntity({email});
     if(!user){
       return new NotFoundResponse("User not found");
     }
+    user.isActivated = true;
+    await this.repository.update({email}, { ...user });
     const expiredTime = moment().subtract(1, 'hour');
     const currentSession = await this.sessionRepository.getByEntity({userId: user._id, status: sessionConstant.STATUS_TOKEN.ACTIVE, expiredAt: {$gte: expiredTime}});
     if (currentSession){
@@ -223,8 +287,8 @@ module.exports = class UserService {
   }
   //Update, Delete,...
 
-  async findOrCreateGoogleUser(profile) {
-    console.log(profile);
+  async findOrCreateOauthUser(profile) {
+    // console.log(profile);
     const email = profile.emails[0].value;
     let user = await this.repository.getByEntity({ email: email });
     if (user) {
@@ -235,9 +299,156 @@ module.exports = class UserService {
         fullName: profile.displayName,
         email: email,
         googleId: profile.id,
-        role: "LEARNER",
       }
-      return await this.repository.create(newUser);
+      const data = await this.repository.create(newUser);
+      return data;
+    }
+  }
+
+  async activateAccount(token) {
+    try {
+      const user = await this.repository.getByEntity({ activationToken: token });
+      if (!user) {
+        return new NotFoundResponse("Couldn't find user");
+      }
+
+      user.isActivated = true;
+      user.activationToken = undefined;
+      user.activationTokenExpires = undefined;
+      const confirmationUser = await this.repository.update({ _id: user._id }, {
+        ...user
+      });
+
+      return new SuccessResponse(
+        {
+          success: true,
+          message: "Your account has been activated"
+        }
+      )
+    }
+    catch(error) {
+      return new InternalServerError();
+    }
+  }
+
+  async forgotPassword(email) {
+    try {
+      const user = await this.repository.getByEntity({ email: email });
+      if (!user) {
+        return new NotFoundResponse("Couldn't find user");
+      }
+      const resetToken = crypto.randomBytes(20).toString('hex');
+      const resetTokenExpires = moment().add(1, 'hour');
+      const resetPassword = await this.repository.update({ _id: user._id }, {
+        resetToken: resetToken,
+        resetTokenExpires: resetTokenExpires
+      });
+
+      if (!resetPassword) {
+        return new InternalServerError();
+      }
+
+      const transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_APP_PASSWORD,
+        },
+        tls: {
+          rejectUnauthorized: false,
+        },
+      });
+      const url = `${process.env.URL_FE}/reset-password/` + resetToken;
+      console.log(url);
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: 'Reset password',
+        text: 'Hello ' + user.fullName + ',\n\n' +
+          'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
+          'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
+          `${url}\n\n` +
+          'If you did not request this, please ignore this email and your password will remain unchanged.\n'
+      };
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          return new InternalServerError();
+        }
+      });
+
+      return new SuccessResponse(
+        {
+          success: true,
+          message: "Reset password link has been sent to your email"
+        }
+      )
+    }
+    catch(error) {
+      console.log(error);
+      return new InternalServerError();
+    }
+  }
+
+  async resetPassword(token, password) {
+    try {
+      if (!token || !password) {
+        return new BadRequestResponse("Missed information");
+      }
+      const user = await this.repository.getByEntity({ resetToken: token });
+      if (!user) {
+        return new NotFoundResponse("Couldn't find user");
+      }
+
+      if (moment().isAfter(user.resetTokenExpires)) {
+        return new BadRequestResponse("Reset password link has expired");
+      }
+  
+      const hashedPassword = await bcrypt.hash(password, 10);
+      user.password = hashedPassword;
+      user.resetToken = undefined;
+      user.resetTokenExpires = undefined;
+      const resetPassword = await this.repository.update({ _id: user._id }, {
+        ...user
+      });
+
+      if (!resetPassword) {
+        return new InternalServerError();
+      }
+
+      return new SuccessResponse(
+        {
+          success: true,
+          message: "Your password has been reset"
+        }
+      )
+    }
+    catch(error) {
+      console.log(error);
+      return new InternalServerError();
+    }
+  }
+
+  async checkToken(token) {
+    try {
+      const user = await this.repository.getByEntity({ resetToken: token });
+      if (!user) {
+        return new NotFoundResponse("Couldn't find user");
+      }
+      if (moment().isAfter(user.resetTokenExpires)) {
+        return new BadRequestResponse("Reset password link has expired");
+      }
+      return new SuccessResponse(
+        {
+          success: true,
+          message: "Valid token"
+        }
+      )
+    }
+    catch(error) {
+
+      return new InternalServerError();
     }
   }
 };

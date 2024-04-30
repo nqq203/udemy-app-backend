@@ -9,6 +9,7 @@ const Schema = new mongoose.Schema(
       type: String,
       minLength: 8,
     },
+    avatar: { type: String },
     wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: "courses" }],
     biography: { type: String },
     website: { type: String },
@@ -23,7 +24,12 @@ const Schema = new mongoose.Schema(
     gender: {
       type: String,
       enum: Object.values(USER_GENDER),
-    }
+    },
+    activationToken: {type: String, unique: true},
+    activationTokenExpires: {type: Date },
+    isActivated: {type: Boolean, default: false},
+    resetToken: {type: String, unique: true},
+    resetTokenExpires: {type: Date }
   },
   {
     collection: "users",
