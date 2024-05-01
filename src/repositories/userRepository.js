@@ -39,13 +39,14 @@ module.exports = class UserRepository{
   //Test Update Function
   async update(filter, entity) {
     try {
-      const user = await this.model.findOneAndUpdate(filter, entity);
-      return user;
+        const user = await this.model.findOneAndUpdate(filter, entity, { new: true });
+        return user;
     } catch (error) {
-      console.error(error);
-      return null;
+        console.error(error);
+        return null;
     }
-  }
+}
+
 
   //Test Delete Function
   async delete(entity) {
