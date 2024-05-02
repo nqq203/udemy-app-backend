@@ -13,6 +13,11 @@ const { USER_ROLE } = require("../constants/user.constants");
 const { uploads } = require("../utils/cloudinary");
 const courses = require("../models/courses");
 
+String.prototype.toObjectId = function () {
+  var ObjectId = require("mongoose").Types.ObjectId;
+  return new ObjectId(this.toString());
+};
+
 courseRouter.get("/list", async (req, res) => {
   const response = await service.getAllCourses();
   res.send(response.responseBody());
@@ -34,6 +39,12 @@ courseRouter.get(
     res.send(response.responseBody());
   }
 );
+
+courseRouter.get("/course-by-id", async (req, res) => {
+  const id = req.query.courseId?.toObjectId();
+  const response = await service.getCourseByCId(id);
+  res.send(response.responseBody());
+});
 
 courseRouter.get("/", async (req, res) => {
   const pageNumber = req.query.pageNum || 1;
@@ -165,7 +176,6 @@ courseRouter.post("/get-course-detail", verifyToken, async (req, res) => {
 // API for getting course detail by course id
 courseRouter.get("/:id/related", async (req, res) => {
   const courseId = req.params.id;
-  //console.log(courseId);
   const response = await service.getRelatedCourses(courseId);
 
   res.send(response.responseBody());

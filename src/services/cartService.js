@@ -50,7 +50,6 @@ module.exports = class UserService {
       if (!carts) {
         return new NotFoundResponse('Cart not found');
       }
-      console.log(carts.length);
       let itemCartList = [];
       await Promise.all(
         carts.map(async (cart) => {
