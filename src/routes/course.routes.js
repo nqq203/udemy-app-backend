@@ -165,7 +165,7 @@ courseRouter.post("/get-course-detail", verifyToken, async (req, res) => {
 // API for getting course detail by course id
 courseRouter.get("/:id/related", async (req, res) => {
   const courseId = req.params.id;
-  console.log(courseId);
+  //console.log(courseId);
   const response = await service.getRelatedCourses(courseId);
 
   res.send(response.responseBody());
