@@ -18,7 +18,8 @@ module.exports = class NoteService {
         try {
             const entities = { userId, courseId };
             const notes = await this.repository.getByEntities(entities);
-            if (!notes) {
+            console.log(notes)
+            if (!notes || notes.length === 0) {
                 return new NotFoundResponse("Notes not found");
             }
             return new SuccessResponse({ message: "Notes found", metadata: notes });
@@ -44,7 +45,7 @@ module.exports = class NoteService {
 
     async updateNoteById(noteId, data) {
         try {
-            const note = await this.repository.update({ _id: noteId }, data);
+            const note = await this.repository.update({ _id: noteId }, {content: data});
             if (!note) {
                 return new NotFoundResponse("Note not found");
             }
@@ -62,7 +63,8 @@ module.exports = class NoteService {
             if (!note) {
                 return new NotFoundResponse("Note not found");
             }
-            if (note.result.ok === 1) {
+            else if (note) {
+                console.log(note)
                 return new SuccessResponse({ message: "Note deleted" });
             } else {
                 return new ConflictResponse("Note not deleted");
