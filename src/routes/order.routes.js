@@ -81,6 +81,14 @@ orderRouter.post("/create", verifyToken, async (req, res) => {
   res.send(response.responseBody());
 });
 
+orderRouter.get('/get-purchase-history', async (req, res) => {
+  const userId = req.query.userId;
+  const orders = await service.getPurchaseHistory(userId);
+  console.log(orders)
+  res.send(orders.responseBody());
+  //res.send(orders.responseBody());
+});
+
 orderRouter.get("/order-by-user", async (req, res) => {
   const orderData = req.query;
   if (orderData.userId === undefined) {
@@ -167,5 +175,6 @@ orderRouter.post('/complete-paypal-order', (req, res) => {
           res.status(500).send(err)
       })
 });
+
 
 module.exports = { orderRouter };

@@ -10,8 +10,6 @@ const {
 } = require("../common/success.response");
 const { ORDER_STATUS, PAYMENT_METHOD } = require("../constants/order.constant");
 
-const CourseService = require("./courseService");
-const courseService = new CourseService();
 module.exports = class OrderService {
   constructor() {
     this.repository = new OrderRepository();
@@ -21,7 +19,7 @@ module.exports = class OrderService {
     try {
       console.log(data);
       const { userId, items, price, paymentId } = data;
-      if (!userId || !items || !price ) {
+      if (!userId || !items || !price) {
         return new BadRequest("Missed information");
       }
 
@@ -37,8 +35,8 @@ module.exports = class OrderService {
           });
         });
       });
-      
-      if(isPurchasedCourse) {
+
+      if (isPurchasedCourse) {
         return new BadRequest("You already purchased this course");
       }
 
@@ -69,9 +67,22 @@ module.exports = class OrderService {
       if (!order) {
         return new NotFoundResponse("Order not found");
       }
-      return new SuccessResponse({message: "Order found", metadata: order});
+      return new SuccessResponse({ message: "Order found", metadata: order });
     } catch (err) {
       console.log(err);
+      return new InternalServerError();
+    }
+  }
+
+  async getPurchaseHistory(userId) {
+    try {
+      const result = await this.repository.getPurchaseHistory(userId);
+      return new SuccessResponse({
+        message: "Purchase history found",
+        metadata: result,
+      });
+    } catch (error) {
+      console.error(error);
       return new InternalServerError();
     }
   }
@@ -82,7 +93,7 @@ module.exports = class OrderService {
       if (!orders) {
         return new NotFoundResponse("Order not found");
       }
-      return new SuccessResponse({message: "Order found", metadata: orders});
+      return new SuccessResponse({ message: "Order found", metadata: orders });
     } catch (err) {
       console.log(err);
       return new InternalServerError();
@@ -92,13 +103,15 @@ module.exports = class OrderService {
   async getCompletedOrdersByInstructorId(instructorId) {
     try {
       // Get all completed orders
-      const orders = await this.repository.getCompletedOrdersByInstructorId(instructorId);
+      const orders = await this.repository.getCompletedOrdersByInstructorId(
+        instructorId
+      );
 
       if (!orders) {
         return new NotFoundResponse("Order not found");
       }
-      
-      return new SuccessResponse({message: "Order found", metadata: orders});
+
+      return new SuccessResponse({ message: "Order found", metadata: orders });
     } catch (err) {
       console.log(err);
       return new InternalServerError();
@@ -107,8 +120,12 @@ module.exports = class OrderService {
 
   async getCompletedOrdersByInstructorIdAndYear(instructorId, year) {
     try {
-      const result = await this.repository.getCompletedOrdersByInstructorIdAndYear(instructorId, year);
-      return new SuccessResponse({message: "Orders found", metadata: result});
+      const result =
+        await this.repository.getCompletedOrdersByInstructorIdAndYear(
+          instructorId,
+          year
+        );
+      return new SuccessResponse({ message: "Orders found", metadata: result });
     } catch (error) {
       console.error(error);
       return new InternalServerError();
