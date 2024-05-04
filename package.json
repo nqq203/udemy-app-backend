@@ -1,10 +1,7 @@
 {
   "dependencies": {
     "@paypal/checkout-server-sdk": "^1.0.3",
-<<<<<<< Updated upstream
-=======
     "axios": "^1.6.8",
->>>>>>> Stashed changes
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
     "chalk": "^5.3.0",

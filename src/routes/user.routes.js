@@ -82,11 +82,6 @@ userRouter.patch('/update-profile', verifyToken, async (req, res) => {
   res.send(response.responseBody());
 });
 
-<<<<<<< Updated upstream
-userRouter.put('/change-avatar', verifyToken,uploads.single('image'), async (req, res) => {
-  const imageFile = req?.file?.path;
-  const {email} = req.body;
-=======
 function checkFileUpload(req, res, next) {
   if (!req.file) {
     // Nếu không có file, gọi next() để bỏ qua multer
@@ -97,18 +92,13 @@ function checkFileUpload(req, res, next) {
 userRouter.put('/change-avatar', verifyToken, checkFileUpload, async (req, res) => {
   const imageFile = req?.file?.path;
   const { email } = req.body;
->>>>>>> Stashed changes
   console.log(imageFile, email)
   const response = await service.updateAvatar(email, imageFile);
   console.log(response.responseBody())
   res.send(response.responseBody());
-<<<<<<< Updated upstream
-})
-=======
 });
 
 
->>>>>>> Stashed changes
 
 userRouter.get('/list', async (req, res) => {
   const response = await service.getAllUsers();
