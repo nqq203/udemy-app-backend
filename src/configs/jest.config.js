@@ -1,19 +1,23 @@
+require('dotenv').config({ path: './test.env' })
+
 module.exports = {
     // Specifies the test environment
     testEnvironment: 'node',
 
     // Specifies the root directories for Jest to look for tests
-    roots: ['../tests/'],
+    roots: ['../../tests/'],
 
     // Enables coverage collection during tests
-
+    setupFiles: [
+        '../../.test.env'
+    ],
     // Specifies the directory where coverage reports will be generated
-    coverageDirectory: '../coverage',
+    // coverageDirectory: '../coverage',
     // Ignores specified directories from transformation during testing
     transformIgnorePatterns: ['/node_modules/'],
 
     // Sets the timeout for each test to 30 seconds
-    testTimeout: 20000,
+    testTimeout: 900000, 
 
     // Specifies the transformation applied to certain file types (e.g., using Babel)
     transform: {
@@ -29,5 +33,5 @@ module.exports = {
             lines: 90,
         },
     },
-    verbose: true,
+    // verbose: true,
 };

@@ -49,37 +49,41 @@ module.exports = class LectureService{
 
     async createOneLecture(lectureData, videoFile) {
       try {
-        const { title, sectionId } = lectureData;
-        if (!title || !sectionId) {
-          return new BadRequest("Missing information");
-        }
-
-        const fileUrl = await uploadFileToCloud(videoFile);
-
-        let lectureDuration;
-        await getVideoDurationInSeconds(
-          fileUrl
-        ).then((duration) => {
-          lectureDuration = duration;
-        })
-
-        const data = {
-          title,
-          sectionId,
-          url: fileUrl,
-          duration: BigInt(parseInt(lectureDuration)),
-        }
-
-        const newLecture = await this.repository.create(data);
-        console.log(newLecture);
-        return new CreatedResponse({
-          message: "Create lecture successfully",
-          metadata: newLecture,
-        });
+          const { title, sectionId } = lectureData;
+          if (!title || !sectionId) {
+              return new BadRequest("Missing information");
+          }
+  
+          const fileUrl = await uploadFileToCloud(videoFile);
+  
+          if (!fileUrl) {
+              return new BadRequest("Upload video failed");
+          }
+          // Ensure getting video duration before proceeding
+          const lectureDuration = await getVideoDurationInSeconds(fileUrl);
+  
+          if (!lectureDuration) {
+              return new BadRequest("Get video duration failed");
+          }
+          const data = {
+              title,
+              sectionId,
+              url: fileUrl,
+              duration: BigInt(parseInt(lectureDuration)),
+          }
+  
+          const newLecture = await this.repository.create(data);
+          console.log(newLecture);
+          return new CreatedResponse({
+              message: "Create lecture successfully",
+              metadata: newLecture,
+          });
       } catch (error) {
-        return new InternalServerError();
+          console.log(error);
+          return new InternalServerError();
       }
-    }
+  }
+  
 
     async updateOneLecture(lectureData, videoFile) {
       try {

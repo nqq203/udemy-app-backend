@@ -18,6 +18,28 @@ String.prototype.toObjectId = function () {
   return new ObjectId(this.toString());
 };
 
+<<<<<<< Updated upstream
+=======
+function checkimageFileUpload(req, res, next) {
+  if (!req.file) {
+    // Nếu không có file, gọi next() để bỏ qua multer
+    return next();
+  }
+  // Nếu có file, sử dụng multer để xử lý file
+  uploads.single('imageFile')(req, res, next);
+}
+
+function checkArrayFileUpload(req, res, next) {
+  if (!req.file) {
+    // Nếu không có file, gọi next() để bỏ qua multer
+    return next();
+  }
+  // Nếu có file, sử dụng multer để xử lý file
+  uploads.array("files")(req, res, next);
+}
+
+
+>>>>>>> Stashed changes
 courseRouter.get("/list", async (req, res) => {
   const response = await service.getAllCourses();
   res.send(response.responseBody());
@@ -73,7 +95,7 @@ courseRouter.get("/search-courses-ratings", async (req, res) => {
 courseRouter.post(
   "/create-one-course",
   verifyToken,
-  uploads.single("imageFile"),
+  checkimageFileUpload,
   async (req, res) => {
     const courseData = JSON.parse(req.body.courseData);
     const imageFile = req.file;
@@ -126,7 +148,7 @@ courseRouter.post("/search", verifyToken, async (req, res) => {
 courseRouter.post(
   "/create-completed-course",
   verifyToken,
-  uploads.array("files"),
+  checkArrayFileUpload,
   async (req, res) => {
     const courseData = JSON.parse(req.body.courseData);
     const sections = JSON.parse(req.body.sections);
@@ -143,7 +165,7 @@ courseRouter.post(
 courseRouter.put(
   "/update-course",
   verifyToken,
-  uploads.single("imageFile"),
+  checkimageFileUpload,
   async (req, res) => {
     const courseData = JSON.parse(req.body.courseData);
     const imageFile = req.file;

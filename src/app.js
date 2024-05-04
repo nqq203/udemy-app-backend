@@ -7,7 +7,10 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const db = require("./configs/db");
 const app = express();
+<<<<<<< Updated upstream
 const routes = require('./routes/index');
+=======
+>>>>>>> Stashed changes
 const port = 8080;
 require('dotenv').config();
 db.connectDB();
@@ -44,7 +47,10 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 Router(app);
-// app.use(errorHandler);
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}: http://localhost:${port}`);
-});
+module.exports = app
+
+if (require.main === module) {
+  app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+  });
+}
