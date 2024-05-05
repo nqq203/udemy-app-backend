@@ -2,24 +2,38 @@ const request = require('supertest');
 const app = require('../src/app'); 
 
 describe('orderRouter.post(\'/create\')', () => {
-  const endPoint = '/orders/create'; // Assuming the actual endpoint
+  const endPoint = '/orders/create';
   afterEach(() => {
     jest.clearAllMocks(); 
   });
 
-  let orderData, token;
+  let orderData, orderDataWithoutItems, token;
 
   beforeAll(() => {
     orderData = {
-      userId: "123456",
-      items: [{
-          itemId: "123456",
+      userId: "660e281882a2cd30040ae1ac",
+      items: [
+        {
+          itemId: "661de8ca20d64b253d60ece9",
           price: 100,
-      }],
-      price: 100,
-      paymentId: "123456",
+        },
+        {
+          itemId: "661f3da7f99f882605188c82",
+          price: 99,
+        },
+      ],
+      price: 199,
+      paymentId: "1234567890",
     };
-    token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uSWQiOiI2NjM2M2I2OThlYzJhOThjNWE5NjVlNjkiLCJ1c2VySWQiOiI2NjBlMjgxODgyYTJjZDMwMDQwYWUxYWMiLCJpYXQiOjE3MTQ4MzAxODYsImV4cCI6MTcxNDgzMzc4Nn0.wvLcZwzasQr2puFhMLq9MDbJRR4EW3qPUU0PjDGkyuU'
+
+    orderDataWithoutItems = {
+      userId: "660e281882a2cd30040ae1ac",
+      items: [],
+      price: 199,
+      paymentId: "1234567890",
+    };
+
+    token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uSWQiOiI2NjM3NWNhYmNiMDBiYTE1NGJmMzNjYWIiLCJ1c2VySWQiOiI2NjI0MDIyMDY4ZjhiMDk4MjFjYTQ0M2IiLCJpYXQiOjE3MTQ5MDQyMzUsImV4cCI6MTc0NjQ2MTgzNX0.NnD3yBFUtJPARXSNUPFcI6ORCxm9q2x52KeLSSVbSuM'
   });
 
   test('should return 401 if no token is provided', async () => {
@@ -27,8 +41,6 @@ describe('orderRouter.post(\'/create\')', () => {
       .post(endPoint)
       .send({orderData: JSON.stringify(orderData)});  
 
-
-      
     expect(response.statusCode).toBe(200);
     expect(response.body.code).toBe(401);
     expect(response.body.message).toBe('Bạn cần phải đăng nhập');
@@ -39,7 +51,16 @@ describe('orderRouter.post(\'/create\')', () => {
       .post(endPoint)
       .set('Authorization', token)
 
+    expect(response.statusCode).toBe(200);
+    expect(response.body.code).toBe(400);
+    expect(response.body.message).toBe('Order data is required');
+  });
 
+  test('should return 400 if no order items is provided', async () => {
+    const response = await request(app)
+      .post(endPoint)
+      .set('Authorization', token)
+      .send({orderData: JSON.stringify(orderDataWithoutItems)})
 
     expect(response.statusCode).toBe(200);
     expect(response.body.code).toBe(400);
