@@ -7,6 +7,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const db = require("./configs/db");
 const app = express();
+const routes = require('./routes/index');
 const port = 8080;
 require('dotenv').config();
 db.connectDB();

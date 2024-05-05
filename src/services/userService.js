@@ -209,7 +209,7 @@ module.exports = class UserService {
       expiredAt: moment().add(1, 'hour'),
       status: sessionConstant.STATUS_TOKEN.ACTIVE
     })
-    const token = jwt.sign({sessionId: session._id, userId: user._id}, process.env.JWT_SECRET_KEY, {expiresIn: '1h'});
+    const token = jwt.sign({sessionId: session._id, userId: user._id}, process.env.JWT_SECRET_KEY);
 
     return new SuccessResponse({message: "Login successfully", metadata: {userInfo: user, accessToken: token}});
   }
@@ -236,7 +236,7 @@ module.exports = class UserService {
       expiredAt: moment().add(1, 'hour'),
       status: sessionConstant.STATUS_TOKEN.ACTIVE
     })
-    const token = jwt.sign({sessionId: session._id, userId: user._id}, process.env.JWT_SECRET_KEY, {expiresIn: '1h'});
+    const token = jwt.sign({sessionId: session._id, userId: user._id}, process.env.JWT_SECRET_KEY);
 
     return new SuccessResponse({message: "Login successfully", metadata: {userInfo: user, accessToken: token}});
   } 
