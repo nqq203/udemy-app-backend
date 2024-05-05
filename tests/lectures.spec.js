@@ -13,7 +13,7 @@ describe('lectureRouter.post(\'/create\')', () => {
   beforeAll(() => {
     lectureData = { title: 'Test Lecture', sectionId: 123 };
     mockVideoFile = { path: "", mimetype: 'video/mov' }; 
-    token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uSWQiOiI2NjM1YzM3MDQ5YWQ0ZDhkOTYxOTQ1MTYiLCJ1c2VySWQiOiI2NjI0MDIyMDY4ZjhiMDk4MjFjYTQ0M2IiLCJpYXQiOjE3MTQ3OTk0NzIsImV4cCI6MTcxNDgwMzA3Mn0.hH3D74HhhrDVgoVUYQ0W1EbN_fLkVj1LV8gyORSXSHM'
+    token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uSWQiOiI2NjM2M2I2OThlYzJhOThjNWE5NjVlNjkiLCJ1c2VySWQiOiI2NjBlMjgxODgyYTJjZDMwMDQwYWUxYWMiLCJpYXQiOjE3MTQ4MzAxODYsImV4cCI6MTcxNDgzMzc4Nn0.wvLcZwzasQr2puFhMLq9MDbJRR4EW3qPUU0PjDGkyuU'
   });
 
   test('should return 401 if no token is provided', async () => {
