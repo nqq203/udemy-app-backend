@@ -43,9 +43,16 @@ try{
 
 
   lectureRouter.put('/update-lecture', verifyToken, checkFileUpload, async (req, res) => {
+    if (!req.body.lectureData) {
+      return res.send({ success: false, code: 400, message: 'Lecture data is required' }); 
+    }
+
     const lectureData = JSON.parse(req.body.lectureData);
     console.log(req.file);
     const videoFile = req.file;
+    if (!videoFile) {
+      return res.send({ success: false, code: 400, message: 'Video file is required' });
+    }
     const response = await service.updateOneLecture(lectureData, videoFile);
 
     res.send(response.responseBody());
