@@ -17,7 +17,6 @@ module.exports = class OrderService {
 
   async createOrder(data) {
     try {
-      console.log(data);
       const { userId, items, price, paymentId } = data;
       if (!userId || !items || !price) {
         return new BadRequest("Missed information");

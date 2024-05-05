@@ -1,7 +1,7 @@
 const express = require("express");
 const OrderService = require("../services/orderService");
 const { verifyToken } = require("../middlewares/authorization");
-const { NotFoundResponse } = require("../common/error.response");
+const { NotFoundResponse, BadRequest } = require("../common/error.response");
 const service = new OrderService();
 const orderRouter = express.Router();
 
@@ -11,11 +11,18 @@ String.prototype.toObjectId = function () {
 };
 
 orderRouter.post("/create", verifyToken, async (req, res) => {
+  if (!req.body) {
+    return res.send({ success: false, code: 400, message: 'Order data is required' });
+  }
+
   const items = req.body.items;
+  if(items === undefined || items.length === 0) {
+    return res.send({ success: false, code: 400, message: 'Order data is required' });
+  }
+
   items.forEach((item) => {
     item.itemId = item.itemId.toObjectId();
   });
-
   const orderData = {
     userId: req.body.userId.toObjectId(),
     items: items,
