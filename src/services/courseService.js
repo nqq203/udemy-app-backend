@@ -54,6 +54,9 @@ module.exports = class CourseService {
   // Get all information of the course including sections,lectures and instructor
   async getCourseById(_id) {
     try {
+      if(!_id){
+        return new BadRequest("CourseId is required")
+      }
       const course = await this.courseRepo.getCoursebyId({ _id });
       let courseId = _id
       const sections = await this.sectionRepo.getAllByEntity({ courseId })
@@ -62,12 +65,12 @@ module.exports = class CourseService {
       var _id = course.instructorId
       var instructor = await this.userRepo.getByEntity({ _id })
 
-      if (!sections || sections.length === 0) {
+      if (!sections) {
         // Handle the case where sections is undefined or empty
         return new NotFoundResponse("Sections not found");
       }
 
-      if (!instructor || instructor.length === 0) {
+      if (!instructor) {
         // Handle the case where instructor is undefined or empty
         return new NotFoundResponse("instructor not found");
       }
