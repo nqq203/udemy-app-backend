@@ -101,7 +101,7 @@ const checkCourseAccess = async (req,res,next) => {
       })
 
       if(isAccessible === false){
-        return res.send(new AuthFailureResponse('Unregistered course') )
+        return res.send(new AuthFailureResponse('Unregistered course').responseBody())
       }
 
     }

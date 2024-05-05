@@ -284,14 +284,10 @@ module.exports = class UserService {
     }
     const session = await this.sessionRepository.create({
       userId: user._id,
-      expiredAt: moment().add(1, "hour"),
-      status: sessionConstant.STATUS_TOKEN.ACTIVE,
-    });
-    const token = jwt.sign(
-      { sessionId: session._id, userId: user._id },
-      process.env.JWT_SECRET_KEY,
-      { expiresIn: "1h" }
-    );
+      expiredAt: moment().add(1, 'hour'),
+      status: sessionConstant.STATUS_TOKEN.ACTIVE
+    })
+    const token = jwt.sign({sessionId: session._id, userId: user._id}, process.env.JWT_SECRET_KEY);
 
     return new SuccessResponse({
       message: "Login successfully",
@@ -325,14 +321,10 @@ module.exports = class UserService {
     }
     const session = await this.sessionRepository.create({
       userId: user._id,
-      expiredAt: moment().add(1, "hour"),
-      status: sessionConstant.STATUS_TOKEN.ACTIVE,
-    });
-    const token = jwt.sign(
-      { sessionId: session._id, userId: user._id },
-      process.env.JWT_SECRET_KEY,
-      { expiresIn: "1h" }
-    );
+      expiredAt: moment().add(1, 'hour'),
+      status: sessionConstant.STATUS_TOKEN.ACTIVE
+    })
+    const token = jwt.sign({sessionId: session._id, userId: user._id}, process.env.JWT_SECRET_KEY);
 
     return new SuccessResponse({
       message: "Login successfully",
