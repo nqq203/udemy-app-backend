@@ -18,8 +18,6 @@ String.prototype.toObjectId = function () {
   return new ObjectId(this.toString());
 };
 
-<<<<<<< Updated upstream
-=======
 function checkimageFileUpload(req, res, next) {
   if (!req.file) {
     // Nếu không có file, gọi next() để bỏ qua multer
@@ -39,7 +37,6 @@ function checkArrayFileUpload(req, res, next) {
 }
 
 
->>>>>>> Stashed changes
 courseRouter.get("/list", async (req, res) => {
   const response = await service.getAllCourses();
   res.send(response.responseBody());

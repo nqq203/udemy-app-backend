@@ -1,12 +1,12 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
-const nodemailer = require('nodemailer');
+const nodemailer = require("nodemailer");
 const moment = require("moment");
 // const { ObjectId } = mongoose.Schema;
 const UserRepository = require("../repositories/userRepository");
 const SessionRepository = require("../repositories/sessionRepository");
-const Upload = require('../utils/upload');
+const Upload = require("../utils/upload");
 const {
   ConflictResponse,
   BadRequest,
@@ -24,6 +24,68 @@ module.exports = class UserService {
     this.sessionRepository = new SessionRepository();
   }
 
+  async getWishlist(userId) {
+    try {
+      const user = await this.repository.getWishlist(userId);
+      if (!user) {
+        return new NotFoundResponse("User not found");
+      }
+      if (user.wishlist.length == 0)
+        return new NotFoundResponse("Empty wishlist");
+      return new SuccessResponse({
+        message: "Get wishlist successfully",
+        metadata: user.wishlist,
+      });
+    } catch (error) {
+      console.log(error);
+      return new InternalServerError();
+    }
+  }
+
+  async addWishlistItem(userId, courseId) {
+    try {
+      const result = await this.repository.addWishlistItem(userId, courseId);
+      if (result.wasItemAdded === false) {
+        return new BadRequest(
+          "Failed to add wishlist item or item already exists"
+        );
+      } else
+        return new SuccessResponse({
+          message: "Add wishlist item successfully",
+          metadata: result.user,
+        });
+    } catch (error) {
+      console.log(error);
+      return new InternalServerError();
+    }
+  }
+
+  async removeWishlistItem(userId, courseId) {
+    try {
+      const userBeforeUpdate = await this.repository.getByEntity({
+        _id: userId,
+      });
+      const userAfterUpdate = await this.repository.update(
+        { _id: userId },
+        { $pull: { wishlist: courseId } }
+      );
+      console.log("user after update", userAfterUpdate)
+      if (
+        userAfterUpdate.wishlist.length === userBeforeUpdate.wishlist.length
+      ) {
+        return new BadRequest("Failed to remove wishlist item");
+      } else {
+        return new SuccessResponse({
+          message: "Remove wishlist item successfully",
+          metadata: userAfterUpdate,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      return new InternalServerError();
+    }
+  }
+
   async createUser(data) {
     try {
       const { fullname, email, password } = data;
@@ -37,14 +99,14 @@ module.exports = class UserService {
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
-      const activationToken = crypto.randomBytes(20).toString('hex');
+      const activationToken = crypto.randomBytes(20).toString("hex");
 
       const user = await this.repository.create({
         fullName: fullname,
         email,
         password: hashedPassword,
         activationToken,
-        activationTokenExpires: Date.now() + 3600000 // 1 giờ từ bây giờ
+        activationTokenExpires: Date.now() + 3600000, // 1 giờ từ bây giờ
       });
 
       if (!user) {
@@ -53,20 +115,20 @@ module.exports = class UserService {
 
       // Cấu hình NodeMailer
       let transporter = nodemailer.createTransport({
-        service: 'gmail',
+        service: "gmail",
         auth: {
           user: process.env.EMAIL_USERNAME,
-          pass: process.env.EMAIL_PASSWORD
-        }
+          pass: process.env.EMAIL_PASSWORD,
+        },
       });
 
       // Nội dung email
       const mailOptions = {
         from: process.env.EMAIL_USERNAME,
         to: user.email,
-        subject: 'Account Activation',
+        subject: "Account Activation",
         html: `<p>Please click on the following link to activate your account:</p>
-               <a href="http://localhost:3030/activate-account/${activationToken}">Activate Account</a>`
+               <a href="http://localhost:3030/activate-account/${activationToken}">Activate Account</a>`,
       };
 
       // Gửi email
@@ -76,7 +138,7 @@ module.exports = class UserService {
         message: "Please confirm to activate your account",
       });
     } catch (err) {
-      console.log(err); 
+      console.log(err);
       return new InternalServerError();
     }
   }
@@ -93,15 +155,18 @@ module.exports = class UserService {
       if (!userExists) {
         return new NotFoundResponse("User not found");
       }
-      
-      const user = await this.repository.update({ email }, {
-        fullName,
-        biography,
-        website,
-        facebook,
-        linkedin,
-      });
-     
+
+      const user = await this.repository.update(
+        { email },
+        {
+          fullName,
+          biography,
+          website,
+          facebook,
+          linkedin,
+        }
+      );
+
       return new CreatedResponse({
         message: "Update profile successfully",
         metadata: user,
@@ -117,31 +182,32 @@ module.exports = class UserService {
       if (!imageFile || !email) {
         return new BadRequest("Missed information");
       }
-      const uploadedResponse = await Upload.uploadFile(imageFile).catch((error) => {});
-        const avatar = uploadedResponse.secure_url;
-        if (uploadedResponse.secure_url) {
-          console.log(avatar, email);
-          const user = await this.repository.update(
-            { email: email }, 
-            { avatar: avatar }
-          );
-            if (!user) {
-                return new BadRequest('Update avatar failed');
-            }
-            return new SuccessResponse({
-              success: true,
-              message: "Avatar updated successfully",
-              metadata: user,
-            });
-        } else {
-            throw new BadRequest('Image is wrong');
+      const uploadedResponse = await Upload.uploadFile(imageFile).catch(
+        (error) => {}
+      );
+      const avatar = uploadedResponse.secure_url;
+      if (uploadedResponse.secure_url) {
+        console.log(avatar, email);
+        const user = await this.repository.update(
+          { email: email },
+          { avatar: avatar }
+        );
+        if (!user) {
+          return new BadRequest("Update avatar failed");
         }
+        return new SuccessResponse({
+          success: true,
+          message: "Avatar updated successfully",
+          metadata: user,
+        });
+      } else {
+        throw new BadRequest("Image is wrong");
+      }
     } catch (error) {
       console.log(error);
       return new InternalServerError();
     }
   }
-  
 
   async handlePasswordChange(email, currentPassword, newPassword) {
     try {
@@ -150,25 +216,30 @@ module.exports = class UserService {
         return new NotFoundResponse("User not found");
       }
 
-      const isValidPassword = await bcrypt.compare(currentPassword, userExists.password);
+      const isValidPassword = await bcrypt.compare(
+        currentPassword,
+        userExists.password
+      );
       if (!isValidPassword) {
         return new BadRequest("Invalid password");
       }
 
       if (currentPassword === newPassword) {
-        return new BadRequest("New password must be different from the old password");
+        return new BadRequest(
+          "New password must be different from the old password"
+        );
       }
 
       if (!newPassword) {
         return new BadRequest("Missed information");
       }
-      
+
       const hashedPassword = await bcrypt.hash(newPassword, 10);
       const user = await this.repository.update(
-        { email: email }, 
+        { email: email },
         { password: hashedPassword }
       );
-     
+
       if (!user) {
         return new BadRequest("Change password failed");
       }
@@ -182,81 +253,112 @@ module.exports = class UserService {
     }
   }
 
-  async signIn(data){
-    const {email, password} = data;
+  async signIn(data) {
+    const { email, password } = data;
 
-    const user = await this.repository.getByEntity({email});
-    if(!user){
+    const user = await this.repository.getByEntity({ email });
+    if (!user) {
       return new NotFoundResponse("User not found");
     }
     if (!user.isActivated) {
       return new BadRequest("Your account isn't activated");
     }
     const isValidPassword = await bcrypt.compare(password, user.password);
-    if(!isValidPassword){
+    if (!isValidPassword) {
       return new BadRequest("Invalid password");
     }
-    const expiredTime = moment().subtract(1, 'hour');
-    const currentSession = await this.sessionRepository.getByEntity({userId: user._id, status: sessionConstant.STATUS_TOKEN.ACTIVE, expiredAt: {$gte: expiredTime}});
-    if (currentSession){
-      const updateSession = await this.sessionRepository.update({_id: currentSession._id}, {status: sessionConstant.STATUS_TOKEN.INACTIVE, logoutAt: moment()});
+    const expiredTime = moment().subtract(1, "hour");
+    const currentSession = await this.sessionRepository.getByEntity({
+      userId: user._id,
+      status: sessionConstant.STATUS_TOKEN.ACTIVE,
+      expiredAt: { $gte: expiredTime },
+    });
+    if (currentSession) {
+      const updateSession = await this.sessionRepository.update(
+        { _id: currentSession._id },
+        { status: sessionConstant.STATUS_TOKEN.INACTIVE, logoutAt: moment() }
+      );
       if (!updateSession) {
         return new InternalServerError();
       }
     }
     const session = await this.sessionRepository.create({
       userId: user._id,
-      expiredAt: moment().add(1, 'hour'),
-      status: sessionConstant.STATUS_TOKEN.ACTIVE
-    })
-    const token = jwt.sign({sessionId: session._id, userId: user._id}, process.env.JWT_SECRET_KEY, {expiresIn: '1h'});
+      expiredAt: moment().add(1, "hour"),
+      status: sessionConstant.STATUS_TOKEN.ACTIVE,
+    });
+    const token = jwt.sign(
+      { sessionId: session._id, userId: user._id },
+      process.env.JWT_SECRET_KEY,
+      { expiresIn: "1h" }
+    );
 
-    return new SuccessResponse({message: "Login successfully", metadata: {userInfo: user, accessToken: token}});
+    return new SuccessResponse({
+      message: "Login successfully",
+      metadata: { userInfo: user, accessToken: token },
+    });
   }
 
   async signInWithOauth(data) {
     const { email } = data;
 
-    const user = await this.repository.getByEntity({email});
-    if(!user){
+    const user = await this.repository.getByEntity({ email });
+    if (!user) {
       return new NotFoundResponse("User not found");
     }
     user.isActivated = true;
-    await this.repository.update({email}, { ...user });
-    const expiredTime = moment().subtract(1, 'hour');
-    const currentSession = await this.sessionRepository.getByEntity({userId: user._id, status: sessionConstant.STATUS_TOKEN.ACTIVE, expiredAt: {$gte: expiredTime}});
-    if (currentSession){
-      const updateSession = await this.sessionRepository.update({_id: currentSession._id}, {status: sessionConstant.STATUS_TOKEN.INACTIVE, logoutAt: moment()});
+    await this.repository.update({ email }, { ...user });
+    const expiredTime = moment().subtract(1, "hour");
+    const currentSession = await this.sessionRepository.getByEntity({
+      userId: user._id,
+      status: sessionConstant.STATUS_TOKEN.ACTIVE,
+      expiredAt: { $gte: expiredTime },
+    });
+    if (currentSession) {
+      const updateSession = await this.sessionRepository.update(
+        { _id: currentSession._id },
+        { status: sessionConstant.STATUS_TOKEN.INACTIVE, logoutAt: moment() }
+      );
       if (!updateSession) {
         return new InternalServerError();
       }
     }
     const session = await this.sessionRepository.create({
       userId: user._id,
-      expiredAt: moment().add(1, 'hour'),
-      status: sessionConstant.STATUS_TOKEN.ACTIVE
-    })
-    const token = jwt.sign({sessionId: session._id, userId: user._id}, process.env.JWT_SECRET_KEY, {expiresIn: '1h'});
+      expiredAt: moment().add(1, "hour"),
+      status: sessionConstant.STATUS_TOKEN.ACTIVE,
+    });
+    const token = jwt.sign(
+      { sessionId: session._id, userId: user._id },
+      process.env.JWT_SECRET_KEY,
+      { expiresIn: "1h" }
+    );
 
-    return new SuccessResponse({message: "Login successfully", metadata: {userInfo: user, accessToken: token}});
-  } 
+    return new SuccessResponse({
+      message: "Login successfully",
+      metadata: { userInfo: user, accessToken: token },
+    });
+  }
 
-  async signOut(data){
-    const {sessionId} = data;
-    const session = await this.sessionRepository.update({_id: sessionId}, {status: sessionConstant.STATUS_TOKEN.INACTIVE, logoutAt: moment()});
+  async signOut(data) {
+    const { sessionId } = data;
+    const session = await this.sessionRepository.update(
+      { _id: sessionId },
+      { status: sessionConstant.STATUS_TOKEN.INACTIVE, logoutAt: moment() }
+    );
     if (!session) {
       return new InternalServerError();
     }
-    return new SuccessResponse({message: "Logout successfully"});
+    return new SuccessResponse({ message: "Logout successfully" });
   }
-  
+
   async getUserByEmail(email) {
     try {
       const user = await this.repository.getByEntity({ email });
       if (!user) {
         return new NotFoundResponse("User not found");
       }
-      return new SuccessResponse({message: "User found", metadata: user});
+      return new SuccessResponse({ message: "User found", metadata: user });
     } catch (err) {
       return new InternalServerError();
     }
@@ -268,7 +370,7 @@ module.exports = class UserService {
       if (!users) {
         return new NotFoundResponse("User not found");
       }
-      return new SuccessResponse({message: "User found", metadata: users});
+      return new SuccessResponse({ message: "User found", metadata: users });
     } catch (err) {
       return new InternalServerError();
     }
@@ -280,7 +382,7 @@ module.exports = class UserService {
       if (!user) {
         return new NotFoundResponse("User not found");
       }
-      return new SuccessResponse({message: "User found", metadata: user});
+      return new SuccessResponse({ message: "User found", metadata: user });
     } catch (err) {
       return new InternalServerError();
     }
@@ -293,13 +395,12 @@ module.exports = class UserService {
     let user = await this.repository.getByEntity({ email: email });
     if (user) {
       return user;
-    }
-    else {
+    } else {
       const newUser = {
         fullName: profile.displayName,
         email: email,
         googleId: profile.id,
-      }
+      };
       const data = await this.repository.create(newUser);
       return data;
     }
@@ -307,7 +408,9 @@ module.exports = class UserService {
 
   async activateAccount(token) {
     try {
-      const user = await this.repository.getByEntity({ activationToken: token });
+      const user = await this.repository.getByEntity({
+        activationToken: token,
+      });
       if (!user) {
         return new NotFoundResponse("Couldn't find user");
       }
@@ -315,18 +418,18 @@ module.exports = class UserService {
       user.isActivated = true;
       user.activationToken = undefined;
       user.activationTokenExpires = undefined;
-      const confirmationUser = await this.repository.update({ _id: user._id }, {
-        ...user
-      });
-
-      return new SuccessResponse(
+      const confirmationUser = await this.repository.update(
+        { _id: user._id },
         {
-          success: true,
-          message: "Your account has been activated"
+          ...user,
         }
-      )
-    }
-    catch(error) {
+      );
+
+      return new SuccessResponse({
+        success: true,
+        message: "Your account has been activated",
+      });
+    } catch (error) {
       return new InternalServerError();
     }
   }
@@ -337,19 +440,22 @@ module.exports = class UserService {
       if (!user) {
         return new NotFoundResponse("Couldn't find user");
       }
-      const resetToken = crypto.randomBytes(20).toString('hex');
-      const resetTokenExpires = moment().add(1, 'hour');
-      const resetPassword = await this.repository.update({ _id: user._id }, {
-        resetToken: resetToken,
-        resetTokenExpires: resetTokenExpires
-      });
+      const resetToken = crypto.randomBytes(20).toString("hex");
+      const resetTokenExpires = moment().add(1, "hour");
+      const resetPassword = await this.repository.update(
+        { _id: user._id },
+        {
+          resetToken: resetToken,
+          resetTokenExpires: resetTokenExpires,
+        }
+      );
 
       if (!resetPassword) {
         return new InternalServerError();
       }
 
       const transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
+        host: "smtp.gmail.com",
         port: 465,
         secure: true,
         auth: {
@@ -365,12 +471,15 @@ module.exports = class UserService {
       const mailOptions = {
         from: process.env.EMAIL_USER,
         to: email,
-        subject: 'Reset password',
-        text: 'Hello ' + user.fullName + ',\n\n' +
-          'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
-          'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
+        subject: "Reset password",
+        text:
+          "Hello " +
+          user.fullName +
+          ",\n\n" +
+          "You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n" +
+          "Please click on the following link, or paste this into your browser to complete the process:\n\n" +
           `${url}\n\n` +
-          'If you did not request this, please ignore this email and your password will remain unchanged.\n'
+          "If you did not request this, please ignore this email and your password will remain unchanged.\n",
       };
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
@@ -378,14 +487,11 @@ module.exports = class UserService {
         }
       });
 
-      return new SuccessResponse(
-        {
-          success: true,
-          message: "Reset password link has been sent to your email"
-        }
-      )
-    }
-    catch(error) {
+      return new SuccessResponse({
+        success: true,
+        message: "Reset password link has been sent to your email",
+      });
+    } catch (error) {
       console.log(error);
       return new InternalServerError();
     }
@@ -404,27 +510,27 @@ module.exports = class UserService {
       if (moment().isAfter(user.resetTokenExpires)) {
         return new BadRequestResponse("Reset password link has expired");
       }
-  
+
       const hashedPassword = await bcrypt.hash(password, 10);
       user.password = hashedPassword;
       user.resetToken = undefined;
       user.resetTokenExpires = undefined;
-      const resetPassword = await this.repository.update({ _id: user._id }, {
-        ...user
-      });
+      const resetPassword = await this.repository.update(
+        { _id: user._id },
+        {
+          ...user,
+        }
+      );
 
       if (!resetPassword) {
         return new InternalServerError();
       }
 
-      return new SuccessResponse(
-        {
-          success: true,
-          message: "Your password has been reset"
-        }
-      )
-    }
-    catch(error) {
+      return new SuccessResponse({
+        success: true,
+        message: "Your password has been reset",
+      });
+    } catch (error) {
       console.log(error);
       return new InternalServerError();
     }
@@ -439,15 +545,11 @@ module.exports = class UserService {
       if (moment().isAfter(user.resetTokenExpires)) {
         return new BadRequestResponse("Reset password link has expired");
       }
-      return new SuccessResponse(
-        {
-          success: true,
-          message: "Valid token"
-        }
-      )
-    }
-    catch(error) {
-
+      return new SuccessResponse({
+        success: true,
+        message: "Valid token",
+      });
+    } catch (error) {
       return new InternalServerError();
     }
   }

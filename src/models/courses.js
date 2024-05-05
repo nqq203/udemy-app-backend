@@ -17,7 +17,7 @@ const Schema = new mongoose.Schema(
     },
     price: { type: Number },
     category: { type: String, enum: Object.values(COURSE_CATEGORY) },
-    instructorId: { type: ObjectId, required: true },
+    instructorId: { type: ObjectId, required: true, ref: "users" },
     ratings: {
       type: Number,
       default: 0,

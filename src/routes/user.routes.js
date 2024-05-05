@@ -82,11 +82,6 @@ userRouter.patch('/update-profile', verifyToken, async (req, res) => {
   res.send(response.responseBody());
 });
 
-<<<<<<< Updated upstream
-userRouter.put('/change-avatar', verifyToken,uploads.single('image'), async (req, res) => {
-  const imageFile = req?.file?.path;
-  const {email} = req.body;
-=======
 function checkFileUpload(req, res, next) {
   if (!req.file) {
     // Nếu không có file, gọi next() để bỏ qua multer
@@ -97,18 +92,13 @@ function checkFileUpload(req, res, next) {
 userRouter.put('/change-avatar', verifyToken, checkFileUpload, async (req, res) => {
   const imageFile = req?.file?.path;
   const { email } = req.body;
->>>>>>> Stashed changes
   console.log(imageFile, email)
   const response = await service.updateAvatar(email, imageFile);
   console.log(response.responseBody())
   res.send(response.responseBody());
-<<<<<<< Updated upstream
-})
-=======
 });
 
 
->>>>>>> Stashed changes
 
 userRouter.get('/list', async (req, res) => {
   const response = await service.getAllUsers();
@@ -184,6 +174,29 @@ userRouter.put('/reset-password/:token', async (req, res) => {
   const { password} = data;
   const { token } = req.params;
   const response = await service.resetPassword(token, password);
+  res.send(response.responseBody());
+});
+
+userRouter.get('/:id/wishlist', verifyToken, async (req, res) => {
+  const { id: userId } = req.params;
+  const response = await service.getWishlist(userId);
+  console.log(response)
+  res.send(response.responseBody());
+});
+
+userRouter.put('/:id/wishlist', verifyToken, async (req, res) => {
+  const { id: userId } = req.params;
+  const courseId = req.body.courseId;
+  const response = await service.removeWishlistItem(userId, courseId);
+  console.log(response);
+
+  res.send(response.responseBody());
+});
+
+userRouter.post('/:id/wishlist', verifyToken, async (req, res) => {
+  const { id: userId } = req.params;
+  const courseId = req.body.courseId;
+  const response = await service.addWishlistItem(userId, courseId);
   res.send(response.responseBody());
 });
 
