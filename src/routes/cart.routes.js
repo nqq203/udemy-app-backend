@@ -19,12 +19,12 @@ cartRouter.post("/", verifyToken, async (req, res) => {
 });
 
 
-// cartRouter.delete("/:itemId", verifyToken, async (req, res) => {
-//   const { user } = req;
-//   const { itemId = "" } = req.params;
-//   const response = await service.deleteCart({userId: user._id, itemId});
-//   res.send(response.responseBody());
-// });
+cartRouter.delete("/:itemId", verifyToken, async (req, res) => {
+  const { user } = req;
+  const { itemId = "" } = req.params;
+  const response = await service.deleteCart({userId: user._id, itemId});
+  res.send(response.responseBody());
+});
 
 //Testing Route
 cartRouter.get("/all", verifyToken, async (req, res) => {
