@@ -32,15 +32,15 @@ const verifyToken = async (req, res, next) => {
       if (!session) {
         return res.send(new AuthFailureResponse("Bạn cần phải đăng nhập").responseBody());
       }
-      // if (session && session.expiredAt < moment()) {
-      //   return res.send(new AuthFailureResponse("Bạn cần phải đăng nhập").responseBody());
-      // }
-      // if (session.status !== sessionConstant.STATUS_TOKEN.ACTIVE) {
-      //   return res.send(new AuthFailureResponse("Bạn cần phải đăng nhập").responseBody());
-      // }
-      // if (session && String(session.userId) !== userId) {
-      //   return res.send(new AuthFailureResponse("Bạn cần phải đăng nhập").responseBody());
-      // }
+      if (session && session.expiredAt < moment()) {
+        return res.send(new AuthFailureResponse("Bạn cần phải đăng nhập").responseBody());
+      }
+      if (session.status !== sessionConstant.STATUS_TOKEN.ACTIVE) {
+        return res.send(new AuthFailureResponse("Bạn cần phải đăng nhập").responseBody());
+      }
+      if (session && String(session.userId) !== userId) {
+        return res.send(new AuthFailureResponse("Bạn cần phải đăng nhập").responseBody());
+      }
 
       const user = await User.findById(userId);
       if (!user) {
@@ -101,7 +101,7 @@ const checkCourseAccess = async (req,res,next) => {
       })
 
       if(isAccessible === false){
-        return res.send(new AuthFailureResponse('Unregistered course') )
+        return res.send(new AuthFailureResponse('Unregistered course').responseBody())
       }
 
     }
