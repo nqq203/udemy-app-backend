@@ -5,6 +5,7 @@ const { verifyToken, checkRoles } = require('../middlewares/authorization');
 const asyncHandler = require('../middlewares/asyncHandler');
 const userRouter = express.Router();
 const passport = require('../configs/passport.config');
+require('dotenv').config();
 const { uploads } = require('../utils/cloudinary');
 const {
   CreatedResponse,
@@ -150,12 +151,7 @@ userRouter.get('/facebook/redirect',
 userRouter.get('/activate-account/:activationToken', async (req, res) => {
   const response = await service.activateAccount(req.params.activationToken);
   console.log=(response);
-  if (response.success) {
-    res.redirect(`${process.env.URL_FE}/sign-in`);
-  }
-  else {
-    res.send(response.responseBody());
-  }
+  res.send(response.responseBody());
 });
 
 userRouter.post('/forgot-password', async (req, res) => {
