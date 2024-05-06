@@ -15,7 +15,7 @@ const passport = require('./configs/passport.config');
 
 app.use(
   cors({
-    origin: process.env.URL_FE,
+    origin: ['http://localhost:3030', 'https://enlightify.onrender.com'],
     credentials: true,
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE"
   })
