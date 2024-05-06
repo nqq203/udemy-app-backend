@@ -14,7 +14,7 @@ const passport = require('./configs/passport.config');
 
 app.use(
   cors({
-    origin: "https://udemy-app-backend.onrender.com",
+    origin: process.env.URL_FE || "https://enlightify.onrender.com",
     credentials: true,
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE"
   })
