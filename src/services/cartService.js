@@ -115,7 +115,7 @@ module.exports = class UserService {
 
   async deleteAllCart(userId) {
     try {
-      const deletedCart = await this.repository.deleteAll({ userId });
+      const deletedCart = await this.repository.deleteAll({ userId: userId });
       return new SuccessResponse({
         message: 'Cart deleted',
         metadata: deletedCart,

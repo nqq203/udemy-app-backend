@@ -26,14 +26,13 @@ cartRouter.delete("/:itemId", verifyToken, async (req, res) => {
   res.send(response.responseBody());
 });
 
-//Testing Route
 cartRouter.get("/all", verifyToken, async (req, res) => {
   const { userId } = req.query;
   const response = await service.getAllCart(userId);
   res.send(response.responseBody());
 });
 
-cartRouter.delete("/all", verifyToken, async (req, res) => {
+cartRouter.delete("/", verifyToken, async (req, res) => {
   const { userId } = req.query;
   const response = await service.deleteAllCart(userId);
   res.send(response.responseBody());

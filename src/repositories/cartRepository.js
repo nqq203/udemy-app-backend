@@ -5,7 +5,7 @@ module.exports = class CartRepository{
     this.model = Carts
   }
   async getAll(userId){
-    const carts = await Carts.find({userId});
+    const carts = await this.model.find({userId});
     return carts
   }
   async getCart(id){
@@ -19,7 +19,7 @@ module.exports = class CartRepository{
 
   async update(filter, entity) {
     try {
-      const cart = await Carts.findOneAndUpdate(filter, entity);
+      const cart = await this.model.findOneAndUpdate(filter, entity);
       return cart;
     } catch (error) {
       console.error(error);
