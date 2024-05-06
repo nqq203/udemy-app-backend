@@ -15,7 +15,7 @@ const passport = require('./configs/passport.config');
 
 app.use(
   cors({
-    origin: "http://localhost:3030",
+    origin: process.env.URL_FE,
     credentials: true,
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE"
   })

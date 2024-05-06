@@ -128,7 +128,7 @@ module.exports = class UserService {
         to: user.email,
         subject: "Account Activation",
         html: `<p>Please click on the following link to activate your account:</p>
-               <a href="http://localhost:3030/activate-account/${activationToken}">Activate Account</a>`,
+               <a href="${process.env.URL_FE}/activate-account/${activationToken}">Activate Account</a>`,
       };
 
       // Gửi email

@@ -127,7 +127,7 @@ userRouter.get('/google/redirect',
     const responseData = response.responseBody();
     const userInfo = JSON.stringify(responseData.metadata.userInfo);
     const accessToken = JSON.stringify(responseData.metadata.accessToken);
-    res.redirect(`http://localhost:3030/oauth2/?userInfo=${userInfo}&accessToken=${accessToken}`);
+    res.redirect(`${process.env.URL_FE}/oauth2/?userInfo=${userInfo}&accessToken=${accessToken}`);
   }
 );
 
@@ -143,7 +143,7 @@ userRouter.get('/facebook/redirect',
     const responseData = response.responseBody();
     const userInfo = JSON.stringify(responseData.metadata.userInfo);
     const accessToken = JSON.stringify(responseData.metadata.accessToken);
-    res.redirect(`http://localhost:3030/oauth2/?userInfo=${userInfo}&accessToken=${accessToken}`);
+    res.redirect(`${process.env.URL_FE}/oauth2/?userInfo=${userInfo}&accessToken=${accessToken}`);
   }
 );
 
@@ -151,7 +151,7 @@ userRouter.get('/activate-account/:activationToken', async (req, res) => {
   const response = await service.activateAccount(req.params.activationToken);
   console.log=(response);
   if (response.success) {
-    res.redirect(`http://localhost:3030/sign-in`);
+    res.redirect(`${process.env.URL_FE}/sign-in`);
   }
   else {
     res.send(response.responseBody());

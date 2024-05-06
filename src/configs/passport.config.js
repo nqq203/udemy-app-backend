@@ -9,7 +9,7 @@ passport.use(new FacebookStrategy(
   {
     clientID: process.env.FACEBOOK_CLIENT_ID,
     clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
-    callbackURL: "https://5725-2405-4802-80fb-ff30-390d-2ba6-33dc-2463.ngrok-free.app/users/facebook/redirect",
+    callbackURL: `${process.env.URL_BE}/users/facebook/redirect`,
   }, 
   async (accessToken, refreshToken, profile, done) => {
     try {
@@ -26,7 +26,7 @@ passport.use(new FacebookStrategy(
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "http://localhost:8080/users/google/redirect"
+    callbackURL: `${process.env.URL_BE}/users/google/redirect`
   },
   async (accessToken, refreshToken, profile, done) => {
     try {
