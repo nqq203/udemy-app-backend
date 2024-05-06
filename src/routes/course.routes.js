@@ -18,24 +18,6 @@ String.prototype.toObjectId = function () {
   return new ObjectId(this.toString());
 };
 
-function checkimageFileUpload(req, res, next) {
-  if (!req.file) {
-    // Nếu không có file, gọi next() để bỏ qua multer
-    return next();
-  }
-  // Nếu có file, sử dụng multer để xử lý file
-  uploads.single('imageFile')(req, res, next);
-}
-
-function checkArrayFileUpload(req, res, next) {
-  if (!req.file) {
-    // Nếu không có file, gọi next() để bỏ qua multer
-    return next();
-  }
-  // Nếu có file, sử dụng multer để xử lý file
-  uploads.array("files")(req, res, next);
-}
-
 
 courseRouter.get("/list", async (req, res) => {
   const response = await service.getAllCourses();
@@ -91,11 +73,12 @@ courseRouter.get("/search-courses-ratings", async (req, res) => {
 
 courseRouter.post(
   "/create-one-course",
-  verifyToken,
-  checkimageFileUpload,
+  uploads.single('imageFile'),
   async (req, res) => {
+    // console.log(req.body);
     const courseData = JSON.parse(req.body.courseData);
     const imageFile = req.file;
+    console.log(req.file);
     const response = await service.createCourse(courseData, imageFile);
 
     res.send(response.responseBody());
@@ -145,7 +128,7 @@ courseRouter.post("/search", verifyToken, async (req, res) => {
 courseRouter.post(
   "/create-completed-course",
   verifyToken,
-  checkArrayFileUpload,
+  uploads.array("files"),
   async (req, res) => {
     const courseData = JSON.parse(req.body.courseData);
     const sections = JSON.parse(req.body.sections);
@@ -162,11 +145,13 @@ courseRouter.post(
 courseRouter.put(
   "/update-course",
   verifyToken,
-  checkimageFileUpload,
+  uploads.single("imageFile"),
   async (req, res) => {
     const courseData = JSON.parse(req.body.courseData);
+    console.log(req);
     const imageFile = req.file;
     // console.log(courseData);
+    console.log(imageFile);
     const response = await service.updateCourse(courseData, imageFile);
 
     res.send(response.responseBody());

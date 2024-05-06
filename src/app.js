@@ -7,7 +7,6 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const db = require("./configs/db");
 const app = express();
-const routes = require('./routes/index');
 const port = 8080;
 require('dotenv').config();
 db.connectDB();
@@ -15,7 +14,7 @@ const passport = require('./configs/passport.config');
 
 app.use(
   cors({
-    origin: ['http://localhost:3030', 'https://enlightify.onrender.com'],
+    origin: ['http://localhost:3030', process.env.URL_BE],
     credentials: true,
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE"
   })
@@ -36,7 +35,7 @@ app.use(session({
   },
   store: MongoStore.create({
     mongoUrl: process.env.MONGODB_URI, // Or use your MongoDB connection string directly
-    collectionName: 'sessionsOauth'
+    collectionName: 'sessions'
   })
 }));
 

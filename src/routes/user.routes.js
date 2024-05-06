@@ -83,14 +83,7 @@ userRouter.patch('/update-profile', verifyToken, async (req, res) => {
   res.send(response.responseBody());
 });
 
-function checkFileUpload(req, res, next) {
-  if (!req.file) {
-    // Nếu không có file, gọi next() để bỏ qua multer
-    return next();
-  }
-  upload.single('image')(req, res, next);
-}
-userRouter.put('/change-avatar', verifyToken, checkFileUpload, async (req, res) => {
+userRouter.put('/change-avatar', verifyToken, uploads.single('image'), async (req, res) => {
   const imageFile = req?.file?.path;
   const { email } = req.body;
   console.log(imageFile, email)

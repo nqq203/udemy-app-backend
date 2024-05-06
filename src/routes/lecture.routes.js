@@ -5,12 +5,6 @@ const { uploads } = require('../utils/cloudinary');
 const service = new LectureService();
 const lectureRouter = express.Router();
 
-function checkFileUpload(req, res, next) {
-  if (!req.file) {
-    return next();
-  }
-  uploads.single("videoFile")(req, res, next);
-}
 lectureRouter.get('/', async(req,res) => {
     const sectionId = req.query.sectionId;
     const response = await service.getLecturesBySectionId(sectionId);
@@ -23,8 +17,8 @@ lectureRouter.get('/duration', async(req,res) => {
     res.send(response.responseBody());
 })
 
-try{
-  lectureRouter.post('/create', verifyToken, checkFileUpload, async (req, res) => {
+// try{
+  lectureRouter.post('/create', verifyToken, uploads.single("videoFile"), async (req, res) => {
     if (!req.body.lectureData) {
       return res.send({ success: false, code: 400, message: 'Lecture data is required' });
   }
@@ -42,7 +36,7 @@ try{
   });
 
 
-  lectureRouter.put('/update-lecture', verifyToken, checkFileUpload, async (req, res) => {
+  lectureRouter.put('/update-lecture', verifyToken, uploads.single("videoFile"), async (req, res) => {
     if (!req.body.lectureData) {
       return res.send({ success: false, code: 400, message: 'Lecture data is required' }); 
     }
@@ -50,18 +44,15 @@ try{
     const lectureData = JSON.parse(req.body.lectureData);
     console.log(req.file);
     const videoFile = req.file;
-    if (!videoFile) {
-      return res.send({ success: false, code: 400, message: 'Video file is required' });
-    }
     const response = await service.updateOneLecture(lectureData, videoFile);
 
     res.send(response.responseBody());
   });
 
 
-} catch (error) {
-  console.log(error)
-}
+// } catch (error) {
+//   console.log(error)
+// }
 lectureRouter.delete('/delete-lecture/:lectureId', verifyToken, async (req, res) => {
   const { lectureId } = req.params;
   console.log(lectureId);

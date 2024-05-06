@@ -336,7 +336,6 @@ module.exports = class CourseService {
   async updateCourse(data, imageFile) {
     try {
       const { _id, name, description, instructorId, category, publish, price } = data;
-
       // Check if the _id field is provided
       if (!_id) {
         return new BadRequest("Course ID is required for updating");
@@ -346,6 +345,7 @@ module.exports = class CourseService {
       var thumbnailUrl;
       if (imageFile) {
         thumbnailUrl = await uploadFileToCloud(imageFile);
+        console.log(imageFile);
         updateEntity = { name, description, instructorId, category, price, publish, imageUrl: thumbnailUrl };
       }
       else {
