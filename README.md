@@ -20,7 +20,7 @@ npm install
 npm run dev 
 ```
 
-### 5. Run unit tests
+### 4. Run unit tests
 ```bash
 cd tests
 npm run test 
